@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "635645933703",
+    "firebase_url": "https://pml3e2-a1af5-default-rtdb.firebaseio.com",
+    "project_id": "pml3e2-a1af5",
+    "storage_bucket": "pml3e2-a1af5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:635645933703:android:184cce98acb33fff2e6022",
+        "android_client_info": {
+          "package_name": "com.example.surat_mobile_sukorame"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkyn0Ihp7MkqkOOoXFo-47FWH5Jj51ttE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:635645933703:android:295eba07f39679d32e6022",
+        "android_client_info": {
+          "package_name": "com.risandi.pml3e3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkyn0Ihp7MkqkOOoXFo-47FWH5Jj51ttE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
