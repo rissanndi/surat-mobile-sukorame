@@ -21,26 +21,35 @@ Aplikasi ini dikembangkan untuk memudahkan proses administrasi surat di Desa Suk
 - UI Components: Material Design
 
 
+
 ## Instalasi Lengkap & Pengembangan
 
-### 1. Install Flutter SDK
+### 1. Install Flutter SDK (Linux)
 
-Ikuti langkah berikut untuk menginstal Flutter:
+1. Download Flutter SDK versi stable:
+   ```bash
+   wget https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.19.6-stable.tar.xz
+   ```
+2. Ekstrak file yang diunduh:
+   ```bash
+   tar xf flutter_linux_3.19.6-stable.tar.xz
+   ```
+3. Pindahkan folder `flutter` ke direktori yang diinginkan, misal ke `~/development`:
+   ```bash
+   mv flutter ~/development/
+   ```
+4. Tambahkan Flutter ke PATH:
+   ```bash
+   export PATH="$PATH:$HOME/development/flutter/bin"
+   ```
+   Agar permanen, tambahkan baris di atas ke file `~/.bashrc` atau `~/.zshrc`.
+5. Cek instalasi Flutter:
+   ```bash
+   flutter doctor
+   ```
+   Ikuti instruksi yang muncul untuk melengkapi dependensi (Android SDK, Java, dsb).
 
-- **Linux**:
-  1. Download Flutter SDK dari [flutter.dev](https://docs.flutter.dev/get-started/install/linux)
-  2. Ekstrak file zip ke lokasi yang diinginkan (misal: `~/development`)
-  3. Tambahkan Flutter ke PATH:
-     ```bash
-     export PATH="$PATH:`pwd`/flutter/bin"
-     ```
-  4. Jalankan:
-     ```bash
-     flutter doctor
-     ```
-  5. Ikuti instruksi pada output `flutter doctor` untuk melengkapi dependensi (misal: Android SDK, Java, dsb).
-
-- **Windows/MacOS**: Lihat panduan resmi di [flutter.dev](https://docs.flutter.dev/get-started/install)
+**Windows/MacOS:** Lihat panduan resmi di [flutter.dev](https://docs.flutter.dev/get-started/install)
 
 ### 2. Install Android Studio
 
