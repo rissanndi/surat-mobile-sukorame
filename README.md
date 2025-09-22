@@ -20,28 +20,65 @@ Aplikasi ini dikembangkan untuk memudahkan proses administrasi surat di Desa Suk
 - State Management: Provider
 - UI Components: Material Design
 
-## Instalasi & Pengembangan
 
-1. Pastikan Flutter SDK sudah terinstal:
-   ```bash
-   flutter doctor
-   ```
+## Instalasi Lengkap & Pengembangan
 
-2. Clone repository:
-   ```bash
-   git clone https://github.com/rissanndi/surat-mobile-sukorame.git
-   cd surat-mobile-sukorame
-   ```
+### 1. Install Flutter SDK
 
-3. Install dependencies:
-   ```bash
-   flutter pub get
-   ```
+Ikuti langkah berikut untuk menginstal Flutter:
 
-4. Jalankan aplikasi:
+- **Linux**:
+  1. Download Flutter SDK dari [flutter.dev](https://docs.flutter.dev/get-started/install/linux)
+  2. Ekstrak file zip ke lokasi yang diinginkan (misal: `~/development`)
+  3. Tambahkan Flutter ke PATH:
+     ```bash
+     export PATH="$PATH:`pwd`/flutter/bin"
+     ```
+  4. Jalankan:
+     ```bash
+     flutter doctor
+     ```
+  5. Ikuti instruksi pada output `flutter doctor` untuk melengkapi dependensi (misal: Android SDK, Java, dsb).
+
+- **Windows/MacOS**: Lihat panduan resmi di [flutter.dev](https://docs.flutter.dev/get-started/install)
+
+### 2. Install Android Studio
+
+1. Download dan install [Android Studio](https://developer.android.com/studio)
+2. Buka Android Studio, install plugin **Flutter** dan **Dart** melalui menu `Preferences > Plugins`
+3. Pastikan Android SDK sudah terpasang (cek di `Preferences > Appearance & Behavior > System Settings > Android SDK`)
+4. Buat atau pastikan sudah ada Android Virtual Device (AVD) di `Device Manager`
+
+### 3. Clone Repository
+
+```bash
+git clone https://github.com/rissanndi/surat-mobile-sukorame.git
+cd surat-mobile-sukorame
+```
+
+### 4. Install Dependencies
+
+```bash
+flutter pub get
+```
+
+### 5. Menyambungkan ke Android Studio
+
+1. Buka Android Studio
+2. Pilih **Open an Existing Project** dan arahkan ke folder hasil clone (`surat-mobile-sukorame`)
+3. Tunggu hingga Android Studio selesai melakukan indexing dan sinkronisasi project
+4. Pastikan device emulator atau device fisik sudah terdeteksi (cek di toolbar Android Studio)
+5. Jalankan aplikasi dengan klik tombol **Run** (ikon ▶️) atau gunakan perintah:
    ```bash
    flutter run
    ```
+
+### 6. Troubleshooting
+
+- Jika ada error pada `flutter doctor`, ikuti saran perbaikan yang diberikan
+- Pastikan semua dependency sudah terinstall dan device/emulator sudah aktif
+
+---
 
 ## Struktur Aplikasi
 
