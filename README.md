@@ -1,28 +1,3 @@
-# Aplikasi Manajemen Surat Desa Sukorame
-
-Aplikasi mobile untuk pengelolaan administrasi surat-menyurat di Desa Sukorame, dibangun menggunakan Flutter Framework.
-
-## Deskripsi
-
-Aplikasi ini dikembangkan untuk memudahkan proses administrasi surat di Desa Sukorame, memungkinkan pengelolaan surat masuk dan keluar secara digital, serta meningkatkan efisiensi pelayanan kepada masyarakat.
-
-## Fitur Utama
-
-- Manajemen surat masuk dan keluar
-- Pencatatan data pemohon surat
-- Pembuatan berbagai jenis surat keterangan
-- Tracking status surat
-- Notifikasi untuk pemrosesan surat
-- Laporan dan statistik surat
-- Manajemen pengguna (Admin, Staf, Warga)
-
-## Teknologi
-
-- Framework: Flutter
-- Database: SQLite (lokal)
-- State Management: Provider
-- UI Components: Material Design
-
 ## Instalasi & Pengembangan
 
 ### 1. Install Flutter SDK
