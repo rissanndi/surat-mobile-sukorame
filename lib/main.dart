@@ -1,10 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:surat_mobile_sukorame/firebase_options.dart';
-import 'package:surat_mobile_sukorame/screens/login_screen.dart';
-import 'package:surat_mobile_sukorame/screens/main_screen.dart';
-import 'package:surat_mobile_sukorame/screens/verify_email_screen.dart';
+import 'package:surat_mobile_sukorame/screens/auth/auth_gate.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,41 +17,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Aplikasi Surat Pengantar',
+      title: 'Aplikasi Surat Sukorame',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+        primarySwatch: Colors.teal,
         useMaterial3: true,
+        scaffoldBackgroundColor: Colors.grey[50],
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          iconTheme: IconThemeData(color: Colors.black),
+          titleTextStyle: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+        )
       ),
-      home: const AuthWrapper(),
-    );
-  }
-}
-
-// Widget ini akan mengecek status login & verifikasi pengguna
-class AuthWrapper extends StatelessWidget {
-  const AuthWrapper({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
-        }
-        if (snapshot.hasData) {
-          // =========================================================
-          // PERUBAHAN UTAMA ADA DI SINI
-          // =========================================================
-          final user = snapshot.data!;
-          return user.emailVerified
-              ? const MainScreen() // JIKA SUDAH VERIFIKASI -> Masuk ke Aplikasi
-              : const VerifyEmailScreen(); // JIKA BELUM -> Tampilkan Halaman Verifikasi
-        }
-        return const LoginScreen(); // Jika belum login, ke halaman login
-      },
+      home: const AuthGate(), // <-- INI ADALAH PINTU MASUK UTAMA APLIKASI
     );
   }
 }

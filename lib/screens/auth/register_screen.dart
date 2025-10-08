@@ -1,14 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -23,28 +23,35 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _login() async {
+  Future<void> _register() async {
     FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
 
     setState(() { _isLoading = true; });
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
       
+      // Kirim email verifikasi
+      await userCredential.user?.sendEmailVerification();
 
-      if (mounted) {
-        
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pendaftaran berhasil! Silakan cek email Anda untuk verifikasi.'),
+          backgroundColor: Colors.green,
+        ),
+      );
       
+      // Kembali ke halaman login/register awal setelah mendaftar
+      if(mounted) Navigator.of(context).pop();
+
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Login Gagal: ${e.message}"),
+          content: Text("Daftar Gagal: ${e.message}"),
           backgroundColor: Colors.red,
         ),
       );
@@ -56,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Masuk Akun")),
+      appBar: AppBar(title: const Text("Daftar Akun Baru")),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -90,8 +97,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ? const Center(child: CircularProgressIndicator())
                     : ElevatedButton(
                         style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                        onPressed: _login,
-                        child: const Text("Login"),
+                        onPressed: _register,
+                        child: const Text("Daftar"),
                       ),
               ],
             ),

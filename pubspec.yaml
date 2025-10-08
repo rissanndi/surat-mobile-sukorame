@@ -37,6 +37,15 @@ dependencies:
   cloud_firestore: ^4.15.10
   # firebase_storage: ^11.6.11 # Dinonaktifkan sementara
 
+  # Untuk Google API dan Login
+  google_sign_in: ^6.2.1
+  googleapis: ^13.1.0
+  googleapis_auth: ^1.5.1
+  http: ^1.2.1
+  
+  # Untuk memilih file dari HP
+  file_picker: ^8.0.0+1
+
   # State Management (opsional tapi sangat direkomendasikan)
   provider: ^6.1.2
 
