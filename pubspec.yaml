@@ -31,28 +31,23 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Firebase Core
+  # Firebase Core (tetap dipakai untuk Auth & Firestore)
   firebase_core: ^2.27.2
   firebase_auth: ^4.18.0
   cloud_firestore: ^4.15.10
-  # firebase_storage: ^11.6.11 # Dinonaktifkan sementara
 
-  # Untuk Google API dan Login
-  google_sign_in: ^6.2.1
-  googleapis: ^13.1.0
-  googleapis_auth: ^1.5.1
-  http: ^1.2.1
-  
-  # Untuk memilih file dari HP
-  file_picker: ^8.0.0+1
+  # Supabase untuk Storage
+  supabase_flutter: ^2.5.0
 
-  # State Management (opsional tapi sangat direkomendasikan)
+  # State Management
   provider: ^6.1.2
 
   # Fungsionalitas
-  # image_picker: ^1.0.8 # Dinonaktifkan sementara
-  url_launcher: ^6.2.6
-  intl: ^0.19.0 # Untuk format tanggal
+  image_picker: ^1.1.2 
+  intl: ^0.19.0
+
+  # Penyimpanan Lokal
+  shared_preferences: ^2.2.3
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -110,3 +105,9 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+dependency_overrides:
+  app_links: ^6.4.1
+  app_links_platform_interface: ^2.0.2
+  app_links_web: ^1.0.4
+

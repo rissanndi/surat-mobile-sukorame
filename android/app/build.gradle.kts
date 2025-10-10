@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.example.surat_mobile_sukorame"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = "27.0.12077973"
 
     compileOptions {
