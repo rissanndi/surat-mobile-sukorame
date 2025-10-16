@@ -3,11 +3,16 @@ import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'supabase_config.dart';
 import 'models/surat.dart';
 import 'services/surat_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inisialisasi Supabase
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
 
   // Check if running on Linux and provide a default configuration
   if (defaultTargetPlatform == TargetPlatform.linux) {
