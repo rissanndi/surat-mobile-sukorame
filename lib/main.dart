@@ -7,6 +7,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'supabase_config.dart';
 import 'models/surat.dart';
 import 'services/surat_service.dart';
+import 'pages/beranda_page.dart';
+import 'pages/pengajuan_page.dart';
+import 'pages/tervalidasi_page.dart';
+import 'pages/riwayat_pengajuan_page.dart';
+
+import 'pages/akun_admin_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,10 +50,68 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Surat Mobile Sukorame',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Color(0xFFF5F7F6),
+          selectedItemColor: Color(0xFF1B7B3A), // hijau utama
+          unselectedItemColor: Colors.grey,
+          selectedIconTheme: IconThemeData(color: Color(0xFF1B7B3A)),
+          unselectedIconTheme: IconThemeData(color: Colors.grey),
+          showUnselectedLabels: true,
+        ),
       ),
-      home: const MyHomePage(title: 'Surat Mobile Sukorame'),
+      home: const MainNavigation(),
+    );
+  }
+}
+
+class MainNavigation extends StatefulWidget {
+  const MainNavigation({super.key});
+
+  @override
+  State<MainNavigation> createState() => _MainNavigationState();
+}
+
+class _MainNavigationState extends State<MainNavigation> {
+  int _selectedIndex = 0;
+
+  static final List<Widget> _pages = <Widget>[
+    BerandaPage(),
+    PengajuanPage(),
+    TervalidasiPage(),
+    RiwayatPengajuanPage(),
+    AkunAdminPage(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.description),
+            label: 'Pengajuan',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.verified),
+            label: 'Tervalidasi',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Riwayat'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
+        ],
+      ),
     );
   }
 }
