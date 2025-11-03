@@ -10,7 +10,6 @@ import 'services/surat_service.dart';
 import 'pages/beranda_page.dart';
 import 'pages/pengajuan_page.dart';
 import 'pages/tervalidasi_page.dart';
-import 'pages/riwayat_pengajuan_page.dart';
 
 import 'pages/akun_admin_page.dart';
 
@@ -80,7 +79,6 @@ class _MainNavigationState extends State<MainNavigation> {
     BerandaPage(),
     PengajuanPage(),
     TervalidasiPage(),
-    RiwayatPengajuanPage(),
     AkunAdminPage(),
   ];
 
@@ -108,7 +106,6 @@ class _MainNavigationState extends State<MainNavigation> {
             icon: Icon(Icons.verified),
             label: 'Tervalidasi',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Riwayat'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
         ],
       ),
