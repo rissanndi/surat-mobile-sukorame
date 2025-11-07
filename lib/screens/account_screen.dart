@@ -15,10 +15,37 @@ class AccountScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text("Pengaturan Akun"),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.logout),
-              tooltip: 'Logout',
-              onPressed: () => FirebaseAuth.instance.signOut(),
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == 'about') {
+                  // TODO: Navigasi ke halaman "Tentang Aplikasi"
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur "Tentang Aplikasi" sedang dikembangkan.')));
+                } else if (value == 'logout') {
+                  FirebaseAuth.instance.signOut();
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  value: 'about',
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline),
+                      SizedBox(width: 8),
+                      Text('Tentang Aplikasi'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'logout',
+                  child: Row(
+                    children: [
+                      Icon(Icons.logout, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text('Logout', style: TextStyle(color: Colors.red)),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
           bottom: const TabBar(
@@ -30,9 +57,9 @@ class AccountScreen extends StatelessWidget {
         ),
         body: const TabBarView(
           children: [
-            // Konten untuk tab pertama
+            // Konten untuk tab pertama (Profil Saya)
             ProfileTabView(),
-            // Konten untuk tab kedua
+            // Konten untuk tab kedua (Anggota Keluarga)
             FamilyTabView(),
           ],
         ),

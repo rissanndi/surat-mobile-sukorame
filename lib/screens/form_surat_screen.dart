@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:surat_mobile_sukorame/models/surat_model.dart';
+import 'package:surat_mobile_sukorame/screens/detail_surat_screen.dart';
+import 'package:surat_mobile_sukorame/screens/add_family_member_screen.dart';
 
 class FormSuratScreen extends StatefulWidget {
   final String userUid;
@@ -12,17 +14,15 @@ class FormSuratScreen extends StatefulWidget {
 
 class _FormSuratScreenState extends State<FormSuratScreen> {
   final _formKey = GlobalKey<FormState>();
-  bool _isLoading = true; // Loading untuk mengambil data awal
-  bool _isSubmitting = false; // Loading untuk proses pengajuan
+  bool _isLoading = true;
+  bool _isSubmitting = false;
 
-  // State untuk data
   Map<String, dynamic>? _userProfile;
   List<Map<String, dynamic>> _familyMembers = [];
-  List<DropdownMenuItem<String>> _pemohonOptions = [];
+  final List<DropdownMenuItem<String>> _pemohonOptions = [];
   String? _selectedPemohonId;
   Map<String, dynamic>? _selectedPemohonData;
 
-  // Controllers & State untuk form
   final _keperluanController = TextEditingController();
   String? _selectedKategori;
   
@@ -38,29 +38,21 @@ class _FormSuratScreenState extends State<FormSuratScreen> {
     super.dispose();
   }
   
-  // Fungsi untuk mengambil data awal dengan penanganan error
   Future<void> _fetchInitialData() async {
     try {
-      // Ambil data profil utama
       final userDoc = await FirebaseFirestore.instance.collection('users').doc(widget.userUid).get();
       if (userDoc.exists) {
-        _userProfile = userDoc.data()!..['id'] = 'diri_sendiri'; // Tambahkan id khusus
+        _userProfile = userDoc.data()!..['id'] = 'diri_sendiri';
       }
 
-      // Ambil data anggota keluarga
       final familyQuery = await FirebaseFirestore.instance.collection('users').doc(widget.userUid).collection('anggotaKeluarga').get();
-      _familyMembers = familyQuery.docs.map((doc) {
-        return doc.data()..['id'] = doc.id; // Tambahkan id dokumen
-      }).toList();
+      _familyMembers = familyQuery.docs.map((doc) => doc.data()..['id'] = doc.id).toList();
 
-      // Bangun opsi untuk dropdown pemohon
       _buildPemohonOptions();
       
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Gagal memuat data: $e"), backgroundColor: Colors.red),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Gagal memuat data: $e"), backgroundColor: Colors.red));
       }
     } finally {
       if (mounted) {
@@ -71,7 +63,6 @@ class _FormSuratScreenState extends State<FormSuratScreen> {
     }
   }
   
-  // Membangun item-item untuk dropdown pemohon
   void _buildPemohonOptions() {
     _pemohonOptions.clear();
     if (_userProfile != null) {
@@ -88,7 +79,6 @@ class _FormSuratScreenState extends State<FormSuratScreen> {
     }
   }
 
-  // Memperbarui data yang ditampilkan saat pemohon dipilih
   void _onPemohonChanged(String? newId) {
     setState(() {
       _selectedPemohonId = newId;
@@ -100,24 +90,37 @@ class _FormSuratScreenState extends State<FormSuratScreen> {
     });
   }
 
-  // Proses pengajuan surat
   Future<void> _submitSurat() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() { _isSubmitting = true; });
 
+    DocumentReference? newSuratRef;
+
     try {
-      await FirebaseFirestore.instance.collection('surat').add({
-        'pembuatId': widget.userUid,
+      // Bersihkan data pemohon dari field yang tidak perlu
+      final Map<String, dynamic> cleanPemohonData = Map.from(_selectedPemohonData!);
+      cleanPemohonData.remove('fcmToken');
+      cleanPemohonData.remove('lastTokenUpdate');
+      cleanPemohonData.remove('id');
+      cleanPemohonData.remove('uid');
+      cleanPemohonData.remove('urlFotoKk');
+      cleanPemohonData.remove('urlFotoKtp');
+      cleanPemohonData.remove('createdAt');
+
+      newSuratRef = await FirebaseFirestore.instance.collection('surat').add({
+        'userId': widget.userUid,
         'kategori': _selectedKategori,
-        'dataPemohon': _selectedPemohonData, // Simpan salinan lengkap data pemohon
+        'dataPemohon': cleanPemohonData,
         'keperluan': _keperluanController.text.trim(),
-        'status': 'menunggu_upload_ttd', // Status awal sesuai alur baru
+        'status': 'menunggu_upload_ttd',
         'tanggalPengajuan': FieldValue.serverTimestamp(),
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Draf surat berhasil dibuat! Lanjutkan ke proses TTD.'), backgroundColor: Colors.green));
-        Navigator.of(context).pop();
+        final newSuratSnapshot = await newSuratRef.get();
+        final newSurat = Surat.fromFirestore(newSuratSnapshot);
+
+        _showConfirmationDialog(newSurat);
       }
     } catch (e) {
        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal membuat surat: $e'), backgroundColor: Colors.red));
@@ -140,7 +143,7 @@ class _FormSuratScreenState extends State<FormSuratScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     DropdownButtonFormField<String>(
-                      value: _selectedKategori,
+                      initialValue: _selectedKategori,
                       hint: const Text("Pilih Jenis Surat"),
                       items: ['Surat Keterangan Domisili', 'Surat Keterangan Usaha', 'Surat Pengantar Nikah', 'Lainnya'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
                       onChanged: (val) => setState(() => _selectedKategori = val),
@@ -148,14 +151,34 @@ class _FormSuratScreenState extends State<FormSuratScreen> {
                       decoration: const InputDecoration(border: OutlineInputBorder()),
                     ),
                     const SizedBox(height: 24),
-                    
-                    DropdownButtonFormField<String>(
-                      value: _selectedPemohonId,
-                      hint: const Text("Pilih Pemohon Surat"),
-                      items: _pemohonOptions,
-                      onChanged: _onPemohonChanged,
-                      validator: (val) => val == null ? 'Pemohon harus dipilih' : null,
-                      decoration: const InputDecoration(border: OutlineInputBorder()),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            initialValue: _selectedPemohonId,
+                            hint: const Text("Pilih Pemohon Surat"),
+                            items: _pemohonOptions,
+                            onChanged: _onPemohonChanged,
+                            validator: (val) => val == null ? 'Pemohon harus dipilih' : null,
+                            decoration: const InputDecoration(border: OutlineInputBorder()),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        OutlinedButton.icon(
+                          onPressed: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => AddFamilyMemberScreen(userUid: widget.userUid)),
+                            );
+                            if (result == true) {
+                              _fetchInitialData();
+                            }
+                          },
+                          icon: const Icon(Icons.add),
+                          label: const Text("Tambah"),
+                        ),
+                      ],
                     ),
                     
                     if (_selectedPemohonData != null)
@@ -187,7 +210,7 @@ class _FormSuratScreenState extends State<FormSuratScreen> {
                       : ElevatedButton(
                           onPressed: _submitSurat,
                           style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                          child: const Text("Lanjutkan ke Proses Cetak & TTD"),
+                          child: const Text("Ajukan Surat"),
                         )
                   ],
                 ),
@@ -196,7 +219,28 @@ class _FormSuratScreenState extends State<FormSuratScreen> {
     );
   }
 
-  // Widget helper untuk menampilkan data read-only
+  void _showConfirmationDialog(Surat newSurat) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Surat Berhasil Dibuat'),
+          content: const Text('Langkah selanjutnya:\n1. Download surat pada halaman detail.\n2. Print surat yang telah di-download.\n3. Tanda tangani surat tersebut.\n4. Upload kembali surat yang telah ditandatangani.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => DetailSuratScreen(surat: newSurat)),
+                );
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
   Widget _buildReadOnlyField(String label, String? value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),

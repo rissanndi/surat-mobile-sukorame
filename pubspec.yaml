@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.5.3
+  sdk: '>=3.0.0 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -31,27 +31,34 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Firebase Core (tetap dipakai untuk Auth & Firestore)
+  # Firebase & Supabase (yang sudah ada)
   firebase_core: ^2.27.2
   firebase_auth: ^4.18.0
   cloud_firestore: ^4.15.10
-
-  # Supabase untuk Storage
   supabase_flutter: ^2.5.0
+  firebase_messaging: ^14.8.0 # Untuk Notifikasi
 
-  # State Management
   provider: ^6.1.2
-
-  # Fungsionalitas
-  image_picker: ^1.1.2 
   intl: ^0.19.0
-
-  # Penyimpanan Lokal
   shared_preferences: ^2.2.3
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
+  qr_flutter: ^4.1.0 # Untuk QR Code
+  
+  image_picker: ^1.1.2
+  cupertino_icons: ^1.0.2
+  app_links: ^3.4.1
+  rxdart: ^0.28.0
+  url_launcher: ^6.2.6
+  uuid: ^4.3.3
+  path: ^1.9.0
+  file_picker: ^8.0.0+1
+  # Encryption and secure storage for client-side field encryption
+  cryptography: ^2.1.0
+  flutter_secure_storage: ^8.0.0
+  # Temporarily remove flutter_local_notifications due to Android build conflicts.
+  # We'll re-add or upgrade it later once we have a compatible plugin version.
+  timeago: ^3.6.1
+  pdf: ^3.10.8
+  printing: ^5.12.0
 
 dev_dependencies:
   flutter_test:
@@ -74,6 +81,8 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  assets:
+    - assets/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -105,9 +114,4 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
-
-dependency_overrides:
-  app_links: ^6.4.1
-  app_links_platform_interface: ^2.0.2
-  app_links_web: ^1.0.4
 

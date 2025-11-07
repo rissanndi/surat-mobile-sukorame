@@ -1,53 +1,58 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:surat_mobile_sukorame/screens/auth/complete_profile_screen.dart';
+import 'package:surat_mobile_sukorame/services/auth_service.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
-  const VerifyEmailScreen({super.key});
+  final User user;
+
+  const VerifyEmailScreen({super.key, required this.user});
 
   @override
   State<VerifyEmailScreen> createState() => _VerifyEmailScreenState();
 }
 
 class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
-  bool isEmailVerified = false;
-  Timer? timer;
+  final AuthService _authService = AuthService();
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
-    // Cek secara periodik apakah email sudah diverifikasi
-    timer = Timer.periodic(const Duration(seconds: 3), (_) => checkEmailVerified());
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      await widget.user.reload();
+      if (widget.user.emailVerified) {
+        timer.cancel();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CompleteProfileScreen(user: widget.user),
+          ),
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
-    timer?.cancel(); // Selalu batalkan timer untuk mencegah memory leak
+    _timer.cancel();
     super.dispose();
   }
 
-  Future<void> checkEmailVerified() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      await user.reload(); // Wajib untuk reload data user terbaru dari Firebase
-      if (user.emailVerified) {
-        timer?.cancel();
-        // Navigasi akan ditangani oleh AuthWrapper secara otomatis
-        // Jadi kita tidak perlu navigasi manual di sini
-      }
-    }
-  }
-
-  Future<void> sendVerificationEmail() async {
+  Future<void> _resendVerificationEmail() async {
     try {
-      final user = FirebaseAuth.instance.currentUser!;
-      await user.sendEmailVerification();
+      await _authService.sendEmailVerification();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email verifikasi baru telah dikirim.'), backgroundColor: Colors.green),
+        const SnackBar(
+          content: Text('Email verifikasi berhasil dikirim ulang.'),
+        ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal mengirim email: ${e.toString()}')),
+        SnackBar(
+          content: Text('Gagal mengirim ulang email verifikasi: $e'),
+        ),
       );
     }
   }
@@ -55,36 +60,31 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Verifikasi Email")),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Icon(Icons.email_outlined, size: 80, color: Colors.indigo),
-            const SizedBox(height: 24),
-            const Text(
-              'Satu Langkah Lagi!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Email verifikasi telah dikirim ke:\n${FirebaseAuth.instance.currentUser?.email}\nSilakan cek inbox (atau folder spam) Anda.',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: sendVerificationEmail,
-              child: const Text('Kirim Ulang Email'),
-            ),
-            TextButton(
-              onPressed: () => FirebaseAuth.instance.signOut(),
-              child: const Text('Batal / Kembali ke Login'),
-            )
-          ],
+      appBar: AppBar(
+        title: const Text('Verifikasi Email'),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Email verifikasi telah dikirim ke ${widget.user.email}.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _resendVerificationEmail,
+                child: const Text('Kirim Ulang Email'),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () => _authService.signOut(),
+                child: const Text('Kembali ke Login'),
+              ),
+            ],
+          ),
         ),
       ),
     );

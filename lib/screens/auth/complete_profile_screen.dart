@@ -1,11 +1,12 @@
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart'; // <--- DIPERBAIKI
-import 'package:firebase_auth/firebase_auth.dart'; // <--- DIPERBAIKI
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart'; // <--- DIPERBAIKI
-import 'package:intl/intl.dart'; // <--- DIPERBAIKI
-import 'package:shared_preferences/shared_preferences.dart'; // <--- DIPERBAIKI
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:surat_mobile_sukorame/services/supabase_service.dart';
+import 'package:surat_mobile_sukorame/screens/main_screen.dart';
 
 class CompleteProfileScreen extends StatefulWidget {
   final User user;
@@ -179,17 +180,46 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     setState(() { _isLoading = true; });
 
     try {
+      final fullAddress = _alamatController.text.trim();
+      final addressParts = fullAddress.split(',');
+      final namaJalan = addressParts.isNotEmpty ? addressParts[0].trim() : '';
+
       await FirebaseFirestore.instance.collection('users').doc(widget.user.uid).set({
-        'uid': widget.user.uid, 'email': widget.user.email, 'noHp': _noHpController.text.trim(),
-        'nama': _namaController.text.trim(), 'nik': _nikController.text.trim(), 'alamat': _alamatController.text.trim(),
-        'tempatLahir': _tempatLahirController.text.trim(), 'pekerjaan': _pekerjaanController.text.trim(),
-        'urlFotoKtp': _urlKtp, 'urlFotoKk': _urlKk,
-        'tanggalLahir': _selectedDate != null ? Timestamp.fromDate(_selectedDate!) : null,
-        'jenisKelamin': _selectedJenisKelamin ?? '', 'agama': _selectedAgama ?? '', 'statusPerkawinan': _selectedStatusKawin ?? '',
-        'rt': _rtController.text.trim(), 'rw': _rwController.text.trim(), 'kewarganegaraan': 'WNI',
-        'statusDiKeluarga': _selectedStatusKeluarga ?? '', 'role': 'warga', 'createdAt': FieldValue.serverTimestamp(),
+        'uid': widget.user.uid,
+        'email': widget.user.email,
+        'nama': _namaController.text.trim(),
+        'nik': _nikController.text.trim(),
+        'noHp': _noHpController.text.trim(),
+        'agama': _selectedAgama ?? 'Tidak ada',
+        'alamat': _alamatController.text.trim(),
+        'createdAt': DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
+        'jenisKelamin': _selectedJenisKelamin ?? '',
+        'kecamatan': 'Mojoroto',
+        'kelurahan': 'Bandar Lor',
+        'kewarganegaraan': 'NKRI',
+        'kota': 'Kediri',
+        'namaJalan': namaJalan,
+        'pekerjaan': _pekerjaanController.text.trim(),
+        'provinsi': 'Jawa Timur',
+        'role': 'warga',
+        'rt': _rtController.text.trim(),
+        'rw': _rwController.text.trim(),
+        'statusDiKeluarga': _selectedStatusKeluarga ?? '',
+        'statusPerkawinan': _selectedStatusKawin ?? '',
+        'tanggalLahir': _selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : '',
+        'tempatLahir': _tempatLahirController.text.trim(),
+        'urlFotoKk': _urlKk ?? '',
+        'urlFotoKtp': _urlKtp ?? '',
       });
       await _clearDraft();
+
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen()),
+          (route) => false,
+        );
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Gagal menyimpan profil: $e"), backgroundColor: Colors.red));
     } finally {
@@ -232,9 +262,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              DropdownButtonFormField<String>(value: _selectedAgama, decoration: const InputDecoration(labelText: 'Agama', border: OutlineInputBorder()), items: ['Islam', 'Kristen Protestan', 'Kristen Katolik', 'Hindu', 'Buddha', 'Khonghucu'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(), onChanged: (v) => setState(() => _selectedAgama = v), validator: (v) => v == null ? 'Wajib dipilih' : null),
+              DropdownButtonFormField<String>(initialValue: _selectedAgama, decoration: const InputDecoration(labelText: 'Agama', border: OutlineInputBorder()), items: ['Islam', 'Kristen Protestan', 'Kristen Katolik', 'Hindu', 'Buddha', 'Khonghucu'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(), onChanged: (v) => setState(() => _selectedAgama = v), validator: (v) => v == null ? 'Wajib dipilih' : null),
               const SizedBox(height: 16),
-              DropdownButtonFormField<String>(value: _selectedStatusKawin, decoration: const InputDecoration(labelText: 'Status Perkawinan', border: OutlineInputBorder()), items: ['Belum Kawin', 'Kawin', 'Cerai Hidup', 'Cerai Mati'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(), onChanged: (v) => setState(() => _selectedStatusKawin = v), validator: (v) => v == null ? 'Wajib dipilih' : null),
+              DropdownButtonFormField<String>(initialValue: _selectedStatusKawin, decoration: const InputDecoration(labelText: 'Status Perkawinan', border: OutlineInputBorder()), items: ['Belum Kawin', 'Kawin', 'Cerai Hidup', 'Cerai Mati'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(), onChanged: (v) => setState(() => _selectedStatusKawin = v), validator: (v) => v == null ? 'Wajib dipilih' : null),
               const SizedBox(height: 16),
               Autocomplete<String>(
                 initialValue: TextEditingValue(text: _pekerjaanController.text),
@@ -249,7 +279,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               const SizedBox(height: 16),
               Row(children: [ Expanded(child: TextFormField(controller: _rtController, decoration: const InputDecoration(labelText: 'RT'), keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Wajib diisi' : null)), const SizedBox(width: 16), Expanded(child: TextFormField(controller: _rwController, decoration: const InputDecoration(labelText: 'RW'), keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Wajib diisi' : null)) ]),
               const SizedBox(height: 16),
-              DropdownButtonFormField<String>(value: _selectedStatusKeluarga, decoration: const InputDecoration(labelText: 'Status di Keluarga', border: OutlineInputBorder()), items: ['Kepala Keluarga', 'Istri', 'Anak', 'Famili Lain'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(), onChanged: (v) => setState(() => _selectedStatusKeluarga = v), validator: (v) => v == null ? 'Wajib dipilih' : null),
+              DropdownButtonFormField<String>(initialValue: _selectedStatusKeluarga, decoration: const InputDecoration(labelText: 'Status di Keluarga', border: OutlineInputBorder()), items: ['Kepala Keluarga', 'Istri', 'Anak', 'Famili Lain'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(), onChanged: (v) => setState(() => _selectedStatusKeluarga = v), validator: (v) => v == null ? 'Wajib dipilih' : null),
               const SizedBox(height: 16),
                TextFormField(controller: _noHpController, decoration: const InputDecoration(labelText: "Nomor HP (WhatsApp)"), keyboardType: TextInputType.phone, validator: (val) => val!.isEmpty ? 'Nomor HP tidak boleh kosong' : null),
               const SizedBox(height: 24),
