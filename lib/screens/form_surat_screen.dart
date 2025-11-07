@@ -19,7 +19,7 @@ class _FormSuratScreenState extends State<FormSuratScreen> {
 
   Map<String, dynamic>? _userProfile;
   List<Map<String, dynamic>> _familyMembers = [];
-  final List<DropdownMenuItem<String>> _pemohonOptions = [];
+  final final List<DropdownMenuItem<String>> _pemohonOptions = [];
   String? _selectedPemohonId;
   Map<String, dynamic>? _selectedPemohonData;
 
@@ -151,34 +151,14 @@ class _FormSuratScreenState extends State<FormSuratScreen> {
                       decoration: const InputDecoration(border: OutlineInputBorder()),
                     ),
                     const SizedBox(height: 24),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            initialValue: _selectedPemohonId,
-                            hint: const Text("Pilih Pemohon Surat"),
-                            items: _pemohonOptions,
-                            onChanged: _onPemohonChanged,
-                            validator: (val) => val == null ? 'Pemohon harus dipilih' : null,
-                            decoration: const InputDecoration(border: OutlineInputBorder()),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        OutlinedButton.icon(
-                          onPressed: () async {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => AddFamilyMemberScreen(userUid: widget.userUid)),
-                            );
-                            if (result == true) {
-                              _fetchInitialData();
-                            }
-                          },
-                          icon: const Icon(Icons.add),
-                          label: const Text("Tambah"),
-                        ),
-                      ],
+                    
+                    DropdownButtonFormField<String>(
+                      value: _selectedPemohonId,
+                      hint: const Text("Pilih Pemohon Surat"),
+                      items: _pemohonOptions,
+                      onChanged: _onPemohonChanged,
+                      validator: (val) => val == null ? 'Pemohon harus dipilih' : null,
+                      decoration: const InputDecoration(border: OutlineInputBorder()),
                     ),
                     
                     if (_selectedPemohonData != null)
