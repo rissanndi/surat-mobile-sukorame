@@ -19,12 +19,13 @@ class AuthService {
   }
 
   // Register with email
-  Future<UserCredential> registerWithEmail(String email, String password) async {
+  Future<UserCredential> registerWithEmail(
+    String email,
+    String password,
+  ) async {
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
       // Send email verification
       await userCredential.user?.sendEmailVerification();
       return userCredential;
@@ -63,6 +64,17 @@ class AuthService {
     return await _auth.signInWithCredential(credential);
   }
 
+  // Sign in with phone number credential
+  Future<UserCredential> signInWithPhoneNumber(
+    PhoneAuthCredential credential,
+  ) async {
+    try {
+      return await _auth.signInWithCredential(credential);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // Create or update user profile
   Future<void> createUserProfile({
     required String uid,
@@ -81,7 +93,10 @@ class AuthService {
   // Get user role
   Future<String?> getUserRole(String uid) async {
     try {
-      DocumentSnapshot doc = await _firestore.collection('users').doc(uid).get();
+      DocumentSnapshot doc = await _firestore
+          .collection('users')
+          .doc(uid)
+          .get();
       if (doc.exists) {
         return doc.get('role') as String?;
       }

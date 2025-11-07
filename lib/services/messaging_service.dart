@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import '../models/message_model.dart';
 import '../utils/encryption.dart';
 
 class MessagingService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  
+
   // Get current user ID
   String? get currentUserId => _auth.currentUser?.uid;
 
@@ -29,10 +30,10 @@ class MessagingService {
     String? replyToId,
   }) async {
     if (currentUserId == null) throw Exception('Not authenticated');
-    
+
     // Encrypt the message content
     final encryptedContent = await encryptField(content);
-    
+
     final message = Message(
       id: '', // Will be set by Firestore
       senderId: currentUserId!,
@@ -41,40 +42,40 @@ class MessagingService {
       timestamp: DateTime.now(),
       replyToId: replyToId,
     );
-    
+
     // Add to Firestore
-    final messageRef = await _firestore.collection('messages').add(message.toMap());
+    await _firestore.collection('messages').add(message.toMap());
 
     // Update chat document
     final chatParticipants = [currentUserId!, receiverId];
     chatParticipants.sort(); // Ensure consistent order
     final chatId = chatParticipants.join('_');
 
-    await _firestore.collection('chats').doc(chatId).set(
-      {
-        'participants': chatParticipants,
-        'lastMessage': encryptedContent,
-        'lastMessageTimestamp': message.timestamp,
-        'lastMessageSenderId': currentUserId,
-        '${receiverId}_unreadCount': FieldValue.increment(1), // Increment unread count for receiver
-      },
-      SetOptions(merge: true),
-    );
+    await _firestore.collection('chats').doc(chatId).set({
+      'participants': chatParticipants,
+      'lastMessage': encryptedContent,
+      'lastMessageTimestamp': message.timestamp,
+      'lastMessageSenderId': currentUserId,
+      '${receiverId}_unreadCount': FieldValue.increment(
+        1,
+      ), // Increment unread count for receiver
+    }, SetOptions(merge: true));
   }
 
   // Get messages stream for a conversation
   Stream<List<Message>> getMessages(String otherUserId) {
     if (currentUserId == null) throw Exception('Not authenticated');
-    
+
     return _firestore
         .collection('messages')
         .where('senderId', whereIn: [currentUserId, otherUserId])
         .where('receiverId', whereIn: [currentUserId, otherUserId])
         .orderBy('timestamp', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Message.fromFirestore(doc))
-            .toList());
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => Message.fromFirestore(doc)).toList(),
+        );
   }
 
   // Reset unread count for a chat
@@ -92,16 +93,15 @@ class MessagingService {
 
   // Mark message as read
   Future<void> markAsRead(String messageId) async {
-    await _firestore
-        .collection('messages')
-        .doc(messageId)
-        .update({'isRead': true});
+    await _firestore.collection('messages').doc(messageId).update({
+      'isRead': true,
+    });
   }
 
   // Get unread messages count
   Stream<int> getUnreadCount() {
     if (currentUserId == null) throw Exception('Not authenticated');
-    
+
     return _firestore
         .collection('messages')
         .where('receiverId', isEqualTo: currentUserId)
@@ -115,7 +115,7 @@ class MessagingService {
     try {
       return await decryptField(message.encryptedContent);
     } catch (e) {
-      print('Error decrypting message: $e');
+      debugPrint('Error decrypting message: $e');
       return '[Error decrypting message]';
     }
   }

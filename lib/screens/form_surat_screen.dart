@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:surat_mobile_sukorame/models/surat_model.dart';
 import 'package:surat_mobile_sukorame/screens/detail_surat_screen.dart';
-import 'package:surat_mobile_sukorame/screens/add_family_member_screen.dart';
 
 class FormSuratScreen extends StatefulWidget {
   final String userUid;
@@ -19,7 +18,7 @@ class _FormSuratScreenState extends State<FormSuratScreen> {
 
   Map<String, dynamic>? _userProfile;
   List<Map<String, dynamic>> _familyMembers = [];
-  final final List<DropdownMenuItem<String>> _pemohonOptions = [];
+  final List<DropdownMenuItem<String>> _pemohonOptions = [];
   String? _selectedPemohonId;
   Map<String, dynamic>? _selectedPemohonData;
 
@@ -153,7 +152,7 @@ class _FormSuratScreenState extends State<FormSuratScreen> {
                     const SizedBox(height: 24),
                     
                     DropdownButtonFormField<String>(
-                      value: _selectedPemohonId,
+                      initialValue: _selectedPemohonId,
                       hint: const Text("Pilih Pemohon Surat"),
                       items: _pemohonOptions,
                       onChanged: _onPemohonChanged,

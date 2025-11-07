@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:surat_mobile_sukorame/models/surat_model.dart'; // Pastikan model surat diimpor
 // import 'package:surat_mobile_sukorame/services/supabase_service.dart'; // Belum perlu di sini
@@ -37,7 +38,10 @@ class _NewSuratScreenState extends State<NewSuratScreen> {
   Future<void> _loadUserData() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
       if (doc.exists && mounted) {
         setState(() {
           _userData = doc.data();
@@ -55,11 +59,21 @@ class _NewSuratScreenState extends State<NewSuratScreen> {
   Future<void> _submitSurat() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedKategori == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih kategori surat.'), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pilih kategori surat.'),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
     if (_userData == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal memuat data pengguna. Coba lagi.'), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Gagal memuat data pengguna. Coba lagi.'),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
@@ -74,7 +88,9 @@ class _NewSuratScreenState extends State<NewSuratScreen> {
       }
 
       // Buat dokumen baru di koleksi 'surat'
-      DocumentReference docRef = FirebaseFirestore.instance.collection('surat').doc();
+      DocumentReference docRef = FirebaseFirestore.instance
+          .collection('surat')
+          .doc();
 
       // Buat objek Surat dengan data awal
       final newSurat = Surat(
@@ -82,8 +98,9 @@ class _NewSuratScreenState extends State<NewSuratScreen> {
         userId: user.uid,
         kategori: _selectedKategori!,
         keperluan: _keperluanController.text.trim(),
-        tanggalPengajuan: Timestamp.now(),
-        status: 'menunggu_upload_ttd', // Status awal: Menunggu user unduh & upload TTD
+        tanggalPengajuan: DateTime.now(),
+        status:
+            'menunggu_upload_ttd', // Status awal: Menunggu user unduh & upload TTD
         dataPemohon: {
           'nama': _userData!['nama'],
           'nik': _userData!['nik'],
@@ -94,8 +111,8 @@ class _NewSuratScreenState extends State<NewSuratScreen> {
           // Tambahkan data lain yang relevan dari profil
         },
         urlSuratBerttd: null, // Awalnya kosong
-        urlKtp: null,        // Awalnya kosong
-        urlKk: null,         // Awalnya kosong
+        urlKtp: null, // Awalnya kosong
+        urlKk: null, // Awalnya kosong
         urlSuratFinal: null, // Awalnya kosong
         catatanPenolakan: null,
         catatanRt: null,
@@ -106,19 +123,33 @@ class _NewSuratScreenState extends State<NewSuratScreen> {
       await docRef.set(newSurat.toFirestore());
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pengajuan surat berhasil! Silakan ikuti langkah selanjutnya.'), backgroundColor: Colors.green));
-        Navigator.of(context).pop(); // Kembali ke halaman sebelumnya (biasanya HomeScreen)
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Pengajuan surat berhasil! Silakan ikuti langkah selanjutnya.',
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.of(
+          context,
+        ).pop(); // Kembali ke halaman sebelumnya (biasanya HomeScreen)
       }
     } catch (e) {
-      print('Error submitting surat: $e');
+      debugPrint('Error submitting surat: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal mengajukan surat: $e'), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal mengajukan surat: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } finally {
       if (mounted) {
         setState(() {
-        _isLoading = false;
-      });
+          _isLoading = false;
+        });
       }
     }
   }
@@ -134,23 +165,36 @@ class _NewSuratScreenState extends State<NewSuratScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text("Pilih Kategori Surat", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                "Pilih Kategori Surat",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: _selectedKategori,
-                decoration: const InputDecoration(labelText: 'Kategori Surat', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                  labelText: 'Kategori Surat',
+                  border: OutlineInputBorder(),
+                ),
                 items: _kategoriSurat.map((String value) {
-                  return DropdownMenuItem<String>(value: value, child: Text(value));
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
                 }).toList(),
                 onChanged: (newValue) {
                   setState(() {
                     _selectedKategori = newValue;
                   });
                 },
-                validator: (value) => value == null ? 'Pilih kategori surat' : null,
+                validator: (value) =>
+                    value == null ? 'Pilih kategori surat' : null,
               ),
               const SizedBox(height: 24),
-              const Text("Keperluan", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                "Keperluan",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _keperluanController,
@@ -161,14 +205,17 @@ class _NewSuratScreenState extends State<NewSuratScreen> {
                   alignLabelWithHint: true,
                 ),
                 maxLines: 3,
-                validator: (value) => value!.isEmpty ? 'Keperluan tidak boleh kosong' : null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Keperluan tidak boleh kosong' : null,
               ),
               const SizedBox(height: 32),
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
                       onPressed: _submitSurat,
-                      style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
                       child: const Text("Ajukan Surat"),
                     ),
             ],

@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:surat_mobile_sukorame/models/surat_model.dart';
 import 'package:surat_mobile_sukorame/models/user_model.dart';
 import 'package:surat_mobile_sukorame/services/supabase_service.dart';
@@ -28,7 +27,6 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
   UserModel? _currentUserData;
   bool _isLoadingUserData = true;
   bool _isUploading = false;
-  File? _uploadedSuratTtd;
 
   @override
   void initState() {
@@ -43,7 +41,10 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
       return;
     }
     try {
-      final doc = await _firestore.collection('users').doc(firebaseUser.uid).get();
+      final doc = await _firestore
+          .collection('users')
+          .doc(firebaseUser.uid)
+          .get();
       if (doc.exists) {
         final userModel = await UserModel.fromFirestore(doc);
         if (mounted) {
@@ -53,7 +54,7 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
         }
       }
     } catch (e) {
-      print("Error loading user data: $e");
+      debugPrint("Error loading user data: $e");
     } finally {
       if (mounted) {
         setState(() => _isLoadingUserData = false);
@@ -65,7 +66,9 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
     final uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Tidak bisa membuka: $url')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Tidak bisa membuka: $url')));
       }
     }
   }
@@ -76,14 +79,20 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
   }
 
   Future<void> _pickAndUploadSuratTtd(ImageSource source) async {
-    final pickedFile = await ImagePicker().pickImage(source: source, imageQuality: 80);
+    final pickedFile = await ImagePicker().pickImage(
+      source: source,
+      imageQuality: 80,
+    );
     if (pickedFile == null) return;
 
     setState(() => _isUploading = true);
 
     try {
       final imageFile = File(pickedFile.path);
-      final downloadUrl = await _supabaseService.uploadFile(imageFile, 'surat_ttd/${widget.surat.id}');
+      final downloadUrl = await _supabaseService.uploadFile(
+        imageFile,
+        'surat_ttd/${widget.surat.id}',
+      );
 
       if (downloadUrl == null) throw 'Gagal mendapatkan URL setelah upload.';
 
@@ -93,12 +102,21 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
       });
 
       if (mounted) {
-        setState(() => _uploadedSuratTtd = imageFile);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Surat berhasil diunggah!'), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Surat berhasil diunggah!'),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal mengunggah: $e'), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal mengunggah: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isUploading = false);
@@ -115,15 +133,28 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
           updateData['catatanRw'] = catatan;
         }
       }
-      
-      await _firestore.collection('surat').doc(widget.surat.id).update(updateData);
+
+      await _firestore
+          .collection('surat')
+          .doc(widget.surat.id)
+          .update(updateData);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Status surat berhasil diperbarui'), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Status surat berhasil diperbarui'),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal memperbarui status: $e'), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal memperbarui status: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -143,7 +174,10 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
           maxLines: 3,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
           ElevatedButton(
             onPressed: () {
               if (controller.text.isNotEmpty) {
@@ -169,14 +203,18 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
     String newStatusOnApprove = '';
     String newStatusOnReject = '';
 
-    if (isRt && currentSurat.status == 'diajukan_ke_rt' && user.rt == currentSurat.dataPemohon['rt']) {
-        canAct = true;
-        newStatusOnApprove = 'diajukan_ke_rw';
-        newStatusOnReject = 'ditolak_rt';
-    } else if (isRw && currentSurat.status == 'diajukan_ke_rw' && user.rw == currentSurat.dataPemohon['rw']) {
-        canAct = true;
-        newStatusOnApprove = 'disetujui_rw';
-        newStatusOnReject = 'ditolak_rw';
+    if (isRt &&
+        currentSurat.status == 'diajukan_ke_rt' &&
+        user.rt == currentSurat.dataPemohon['rt']) {
+      canAct = true;
+      newStatusOnApprove = 'diajukan_ke_rw';
+      newStatusOnReject = 'ditolak_rt';
+    } else if (isRw &&
+        currentSurat.status == 'diajukan_ke_rw' &&
+        user.rw == currentSurat.dataPemohon['rw']) {
+      canAct = true;
+      newStatusOnApprove = 'disetujui_rw';
+      newStatusOnReject = 'ditolak_rw';
     }
 
     if (!canAct) return const SizedBox.shrink();
@@ -188,7 +226,10 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Tindakan Pengurus', style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              'Tindakan Pengurus',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -197,7 +238,9 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
                     onPressed: () => _showRejectionDialog(newStatusOnReject),
                     icon: const Icon(Icons.close),
                     label: const Text('Tolak'),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -206,7 +249,9 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
                     onPressed: () => _updateSuratStatus(newStatusOnApprove),
                     icon: const Icon(Icons.check),
                     label: const Text('Setujui'),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
                   ),
                 ),
               ],
@@ -216,7 +261,7 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
       ),
     );
   }
-  
+
   Widget _buildWargaActionSection(Surat currentSurat) {
     switch (currentSurat.status) {
       case 'menunggu_upload_ttd':
@@ -227,9 +272,14 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text("Langkah Selanjutnya", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text(
+                  "Langkah Selanjutnya",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
                 const SizedBox(height: 8),
-                const Text("1. Unduh & Cetak Draf Surat.\n2. Tanda tangani.\n3. Foto/Scan hasilnya lalu unggah kembali."),
+                const Text(
+                  "1. Unduh & Cetak Draf Surat.\n2. Tanda tangani.\n3. Foto/Scan hasilnya lalu unggah kembali.",
+                ),
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
                   onPressed: _downloadPdf,
@@ -244,7 +294,8 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () => _pickAndUploadSuratTtd(ImageSource.camera),
+                          onPressed: () =>
+                              _pickAndUploadSuratTtd(ImageSource.camera),
                           icon: const Icon(Icons.camera_alt),
                           label: const Text("Kamera"),
                         ),
@@ -252,7 +303,8 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () => _pickAndUploadSuratTtd(ImageSource.gallery),
+                          onPressed: () =>
+                              _pickAndUploadSuratTtd(ImageSource.gallery),
                           icon: const Icon(Icons.photo_library),
                           label: const Text("Galeri"),
                         ),
@@ -276,9 +328,13 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
       body: _isLoadingUserData
           ? const Center(child: CircularProgressIndicator())
           : StreamBuilder<DocumentSnapshot>(
-              stream: _firestore.collection('surat').doc(widget.surat.id).snapshots(),
+              stream: _firestore
+                  .collection('surat')
+                  .doc(widget.surat.id)
+                  .snapshots(),
               builder: (context, snapshot) {
-                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                if (!snapshot.hasData)
+                  return const Center(child: CircularProgressIndicator());
                 final updatedSurat = Surat.fromFirestore(snapshot.data!);
 
                 return SingleChildScrollView(
@@ -291,19 +347,44 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
                       // Action section for the citizen who created the letter
                       if (_auth.currentUser?.uid == updatedSurat.userId)
                         _buildWargaActionSection(updatedSurat),
-                      
+
                       const SizedBox(height: 24),
-                      const Text("Detail Pengajuan", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                      const Text(
+                        "Detail Pengajuan",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
                       const Divider(),
-                      ListTile(contentPadding: EdgeInsets.zero, title: const Text("Status"), subtitle: Text(updatedSurat.status.replaceAll('_', ' ').toUpperCase())),
-                      ListTile(contentPadding: EdgeInsets.zero, title: const Text("Keperluan"), subtitle: Text(updatedSurat.keperluan)),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text("Status"),
+                        subtitle: Text(
+                          updatedSurat.status
+                              .replaceAll('_', ' ')
+                              .toUpperCase(),
+                        ),
+                      ),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text("Keperluan"),
+                        subtitle: Text(updatedSurat.keperluan),
+                      ),
                       if (updatedSurat.urlSuratBerttd != null)
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           title: const Text("Surat Bertanda Tangan"),
                           subtitle: InkWell(
-                            onTap: () => _launchURL(updatedSurat.urlSuratBerttd!),
-                            child: const Text('Lihat Lampiran', style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline)),
+                            onTap: () =>
+                                _launchURL(updatedSurat.urlSuratBerttd!),
+                            child: const Text(
+                              'Lihat Lampiran',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
                           ),
                         ),
                       // ... other details

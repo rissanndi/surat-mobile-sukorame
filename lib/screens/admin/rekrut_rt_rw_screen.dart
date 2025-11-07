@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../../models/rt_rw_model.dart';
 import '../../services/rt_rw_service.dart';
 
 class RekrutRTRWScreen extends StatefulWidget {
