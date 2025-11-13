@@ -17,10 +17,11 @@ class SuratService {
     }
   }
 
-  // Ambil semua surat
+  // Ambil surat yang masih dalam proses
   Stream<List<Surat>> getSuratStream() {
     return _firestore
         .collection(collection)
+        .where('status', whereIn: ['pending', 'diproses'])
         .orderBy('tanggal', descending: true)
         .snapshots()
         .map((snapshot) {
@@ -47,28 +48,51 @@ class SuratService {
   }
 
   // Update status surat
-  Future<void> updateStatus(String id, String status) async {
+  Future<void> updateStatus(
+    String id,
+    String status, {
+    String? keterangan,
+  }) async {
     try {
-      await _firestore.collection(collection).doc(id).update({
-        'status': status,
-      });
+      final Map<String, dynamic> updateData = {'status': status};
+      if (keterangan != null) {
+        updateData['keterangan'] = keterangan;
+      }
+      await _firestore.collection(collection).doc(id).update(updateData);
     } catch (e) {
       throw Exception('Gagal mengupdate status surat: $e');
     }
   }
 
-  // Cari surat berdasarkan nomor atau pemohon
-  Stream<List<Surat>> cariSurat(String keyword) {
-    return _firestore
-        .collection(collection)
-        .where('nomor', isGreaterThanOrEqualTo: keyword)
-        .where('nomor', isLessThan: '${keyword}z')
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => Surat.fromMap(doc.data(), doc.id))
-              .toList();
-        });
+  // Cari surat berdasarkan nomor, pemohon, atau jenis
+  Stream<List<Surat>> cariSurat(String keyword, {String status = 'active'}) {
+    // Convert keyword to lowercase for case-insensitive search
+    keyword = keyword.toLowerCase();
+
+    Query query = _firestore.collection(collection);
+
+    // Filter berdasarkan status
+    if (status == 'active') {
+      query = query.where('status', whereIn: ['pending', 'diproses']);
+    } else if (status == 'history') {
+      query = query.where('status', whereIn: ['selesai', 'ditolak']);
+    }
+
+    return query.orderBy('tanggal', descending: true).snapshots().map((
+      snapshot,
+    ) {
+      // Filter hasil berdasarkan keyword di pemohon, nomor, atau jenis
+      return snapshot.docs
+          .map(
+            (doc) => Surat.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+          )
+          .where((surat) {
+            return surat.pemohon.toLowerCase().contains(keyword) ||
+                surat.nomor.toLowerCase().contains(keyword) ||
+                surat.jenis.toLowerCase().contains(keyword);
+          })
+          .toList();
+    });
   }
 
   // Hapus surat
@@ -78,6 +102,20 @@ class SuratService {
     } catch (e) {
       throw Exception('Gagal menghapus surat: $e');
     }
+  }
+
+  // Ambil riwayat surat (yang sudah selesai atau ditolak)
+  Stream<List<Surat>> getRiwayatSuratStream() {
+    return _firestore
+        .collection(collection)
+        .where('status', whereIn: ['selesai', 'ditolak'])
+        .orderBy('tanggal', descending: true)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs
+              .map((doc) => Surat.fromMap(doc.data(), doc.id))
+              .toList();
+        });
   }
 
   // Ambil statistik surat
