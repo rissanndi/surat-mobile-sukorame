@@ -253,7 +253,8 @@ class _PengajuanPageState extends State<PengajuanPage>
                       );
                     }
 
-                    final suratList = snapshot.data ?? [];
+                    final querySnapshot = snapshot.data as QuerySnapshot?;
+                    final suratList = querySnapshot?.docs ?? [];
 
                     if (suratList.isEmpty) {
                       return Center(
@@ -282,17 +283,22 @@ class _PengajuanPageState extends State<PengajuanPage>
                       padding: const EdgeInsets.all(16),
                       itemCount: suratList.length,
                       itemBuilder: (context, index) {
-                        final surat = suratList[index];
+                        final doc = suratList[index];
+                        final surat = doc.data() as Map<String, dynamic>;
                         return _PengajuanItem(
-                          title: surat.pemohon,
-                          date: surat.tanggal,
-                          jenisSurat: surat.jenis,
-                          status: surat.status,
+                          title: surat['dataPemohon']?['nama'] ?? '-',
+                          date: surat['tanggalPengajuan']
+                                  ?.toDate()
+                                  ?.toString()
+                                  .substring(0, 10) ??
+                              '-',
+                          jenisSurat: surat['kategori'] ?? '-',
+                          status: surat['status'] ?? '-',
                           onTap: () {
                             Navigator.pushNamed(
                               context,
                               '/lihat-surat',
-                              arguments: surat.id,
+                              arguments: doc.id,
                             );
                           },
                         );
@@ -392,7 +398,8 @@ class _PengajuanPageState extends State<PengajuanPage>
                       );
                     }
 
-                    final suratList = snapshot.data ?? [];
+                    final querySnapshot = snapshot.data as QuerySnapshot?;
+                    final suratList = querySnapshot?.docs ?? [];
 
                     if (suratList.isEmpty) {
                       return Center(
@@ -421,17 +428,22 @@ class _PengajuanPageState extends State<PengajuanPage>
                       padding: const EdgeInsets.all(16),
                       itemCount: suratList.length,
                       itemBuilder: (context, index) {
-                        final surat = suratList[index];
+                        final doc = suratList[index];
+                        final surat = doc.data() as Map<String, dynamic>;
                         return _PengajuanItem(
-                          title: surat.pemohon,
-                          date: surat.tanggal,
-                          jenisSurat: surat.jenis,
-                          status: surat.status,
+                          title: surat['dataPemohon']?['nama'] ?? '-',
+                          date: surat['tanggalPengajuan']
+                                  ?.toDate()
+                                  ?.toString()
+                                  .substring(0, 10) ??
+                              '-',
+                          jenisSurat: surat['kategori'] ?? '-',
+                          status: surat['status'] ?? '-',
                           onTap: () {
                             Navigator.pushNamed(
                               context,
                               '/lihat-surat',
-                              arguments: surat.id,
+                              arguments: doc.id,
                             );
                           },
                         );

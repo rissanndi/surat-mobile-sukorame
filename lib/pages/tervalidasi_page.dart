@@ -53,13 +53,18 @@ class _TervalidasiPageState extends State<TervalidasiPage> {
                   final allDocs = snapshot.data?.docs ?? [];
                   final suratList = allDocs.where((doc) {
                     if (_searchQuery.isEmpty) return true;
-                    
+
                     final data = doc.data() as Map<String, dynamic>;
-                    final nama = data['dataPemohon']?['nama']?.toString().toLowerCase() ?? '';
-                    final kategori = data['kategori']?.toString().toLowerCase() ?? '';
+                    final nama = data['dataPemohon']?['nama']
+                            ?.toString()
+                            .toLowerCase() ??
+                        '';
+                    final kategori =
+                        data['kategori']?.toString().toLowerCase() ?? '';
                     final searchLower = _searchQuery.toLowerCase();
-                    
-                    return nama.contains(searchLower) || kategori.contains(searchLower);
+
+                    return nama.contains(searchLower) ||
+                        kategori.contains(searchLower);
                   }).toList();
 
                   if (suratList.isEmpty) {
@@ -75,7 +80,8 @@ class _TervalidasiPageState extends State<TervalidasiPage> {
                       final surat = doc.data() as Map<String, dynamic>;
                       return _TervalidasiItem(
                         title: surat['dataPemohon']?['nama'] ?? '-',
-                        date: surat['tanggalPengajuan']?.toDate()?.toString() ?? '-',
+                        date: surat['tanggalPengajuan']?.toDate()?.toString() ??
+                            '-',
                         onTap: () {
                           Navigator.pushNamed(
                             context,
@@ -94,7 +100,9 @@ class _TervalidasiPageState extends State<TervalidasiPage> {
       ),
     );
   }
-}class _TervalidasiItem extends StatelessWidget {
+}
+
+class _TervalidasiItem extends StatelessWidget {
   final String title;
   final String date;
   final VoidCallback onTap;
