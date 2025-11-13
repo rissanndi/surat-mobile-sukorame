@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/surat_service.dart';
 
 class PengajuanPage extends StatefulWidget {
@@ -253,8 +252,7 @@ class _PengajuanPageState extends State<PengajuanPage>
                       );
                     }
 
-                    final suratList =
-                        (snapshot.data as QuerySnapshot?)?.docs ?? [];
+                    final suratList = snapshot.data?.docs ?? [];
 
                     if (suratList.isEmpty) {
                       return Center(
@@ -398,8 +396,7 @@ class _PengajuanPageState extends State<PengajuanPage>
                       );
                     }
 
-                    final suratList =
-                        (snapshot.data as QuerySnapshot?)?.docs ?? [];
+                    final suratList = snapshot.data?.docs ?? [];
 
                     if (suratList.isEmpty) {
                       return Center(
