@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/surat.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/surat_service.dart';
 
 class TervalidasiPage extends StatefulWidget {
@@ -39,8 +39,8 @@ class _TervalidasiPageState extends State<TervalidasiPage> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: StreamBuilder<List<Surat>>(
-                stream: _suratService.getSuratStream(),
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _suratService.getSuratStream(status: 'selesai'),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
@@ -50,20 +50,17 @@ class _TervalidasiPageState extends State<TervalidasiPage> {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  final allSurat = snapshot.data ?? [];
-                  final suratList = allSurat
-                      .where((s) => s.status == 'selesai')
-                      .where(
-                        (s) =>
-                            _searchQuery.isEmpty ||
-                            s.pemohon.toLowerCase().contains(
-                              _searchQuery.toLowerCase(),
-                            ) ||
-                            s.nomor.toLowerCase().contains(
-                              _searchQuery.toLowerCase(),
-                            ),
-                      )
-                      .toList();
+                  final allDocs = snapshot.data?.docs ?? [];
+                  final suratList = allDocs.where((doc) {
+                    if (_searchQuery.isEmpty) return true;
+                    
+                    final data = doc.data() as Map<String, dynamic>;
+                    final nama = data['dataPemohon']?['nama']?.toString().toLowerCase() ?? '';
+                    final kategori = data['kategori']?.toString().toLowerCase() ?? '';
+                    final searchLower = _searchQuery.toLowerCase();
+                    
+                    return nama.contains(searchLower) || kategori.contains(searchLower);
+                  }).toList();
 
                   if (suratList.isEmpty) {
                     return const Center(
@@ -74,15 +71,16 @@ class _TervalidasiPageState extends State<TervalidasiPage> {
                   return ListView.builder(
                     itemCount: suratList.length,
                     itemBuilder: (context, index) {
-                      final surat = suratList[index];
+                      final doc = suratList[index];
+                      final surat = doc.data() as Map<String, dynamic>;
                       return _TervalidasiItem(
-                        title: surat.pemohon,
-                        date: surat.tanggal,
+                        title: surat['dataPemohon']?['nama'] ?? '-',
+                        date: surat['tanggalPengajuan']?.toDate()?.toString() ?? '-',
                         onTap: () {
                           Navigator.pushNamed(
                             context,
                             '/lihat-surat',
-                            arguments: surat.id,
+                            arguments: doc.id,
                           );
                         },
                       );
@@ -96,9 +94,7 @@ class _TervalidasiPageState extends State<TervalidasiPage> {
       ),
     );
   }
-}
-
-class _TervalidasiItem extends StatelessWidget {
+}class _TervalidasiItem extends StatelessWidget {
   final String title;
   final String date;
   final VoidCallback onTap;

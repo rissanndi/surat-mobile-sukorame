@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/surat.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/surat_service.dart';
 
 class PengajuanPage extends StatefulWidget {
@@ -213,17 +214,13 @@ class _PengajuanPageState extends State<PengajuanPage>
                 ),
               ),
               Expanded(
-                child: StreamBuilder<List<Surat>>(
+                child: StreamBuilder(
                   stream: _searchQuery.isEmpty
-                      ? _tabController.index == 0
-                            ? _suratService.getSuratStream()
-                            : _suratService.getRiwayatSuratStream()
-                      : _suratService.cariSurat(
-                          _searchQuery,
-                          status: _tabController.index == 0
-                              ? 'active'
-                              : 'history',
-                        ),
+                      ? (_tabController.index == 0
+                          ? _suratService.getSuratStream()
+                          : _suratService.getRiwayatSuratStream(
+                              FirebaseAuth.instance.currentUser?.uid ?? ''))
+                      : null,
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Center(
@@ -358,10 +355,11 @@ class _PengajuanPageState extends State<PengajuanPage>
                 ),
               ),
               Expanded(
-                child: StreamBuilder<List<Surat>>(
+                child: StreamBuilder(
                   stream: _searchQuery.isEmpty
-                      ? _suratService.getRiwayatSuratStream()
-                      : _suratService.cariSurat(_searchQuery),
+                      ? _suratService.getRiwayatSuratStream(
+                          FirebaseAuth.instance.currentUser?.uid ?? '')
+                      : null,
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Center(

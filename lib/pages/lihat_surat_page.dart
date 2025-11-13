@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/surat.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../services/surat_service.dart';
 
 class LihatSuratPage extends StatefulWidget {
@@ -18,7 +18,17 @@ class _LihatSuratPageState extends State<LihatSuratPage> {
       if (_keterangan == null || _keterangan!.trim().isEmpty) {
         throw Exception('Keterangan harus diisi');
       }
-      await _suratService.updateStatus(id, status, keterangan: _keterangan);
+
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('User tidak ditemukan');
+
+      await _suratService.updateStatus(
+        suratId: id,
+        status: status,
+        olehUid: user.uid,
+        catatan: _keterangan,
+      );
+
       if (!mounted) return;
       Navigator.pop(context);
     } catch (e) {
@@ -39,7 +49,7 @@ class _LihatSuratPageState extends State<LihatSuratPage> {
         backgroundColor: const Color(0xFF1B7B3A),
         foregroundColor: Colors.white,
       ),
-      body: FutureBuilder<Surat?>(
+      body: FutureBuilder<Map<String, dynamic>?>(
         future: _suratService.getSuratById(suratId),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
@@ -50,12 +60,12 @@ class _LihatSuratPageState extends State<LihatSuratPage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final surat = snapshot.data;
-          if (surat == null) {
+          final suratData = snapshot.data;
+          if (suratData == null) {
             return const Center(child: Text('Surat tidak ditemukan'));
           }
 
-          final bool isTervalidasi = surat.status == 'selesai';
+          final bool isTervalidasi = suratData['status'] == 'selesai';
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
@@ -68,15 +78,14 @@ class _LihatSuratPageState extends State<LihatSuratPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Nomor Surat: ${surat.nomor}'),
+                        Text('Kategori: ${suratData['kategori'] ?? '-'}'),
                         const SizedBox(height: 8),
-                        Text('Jenis Surat: ${surat.jenis}'),
+                        Text('Keperluan: ${suratData['keperluan'] ?? '-'}'),
                         const SizedBox(height: 8),
-                        Text('Pemohon: ${surat.pemohon}'),
+                        Text('Status: ${suratData['status'] ?? '-'}'),
                         const SizedBox(height: 8),
-                        Text('NIK: ${surat.nik}'),
-                        const SizedBox(height: 8),
-                        Text('Tanggal: ${surat.tanggal}'),
+                        Text(
+                            'Tanggal: ${suratData['tanggalPengajuan']?.toDate()?.toString() ?? '-'}'),
                       ],
                     ),
                   ),
@@ -114,7 +123,7 @@ class _LihatSuratPageState extends State<LihatSuratPage> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Text('Keterangan: ${surat.keterangan}'),
+                  Text('Catatan: ${suratData['catatan'] ?? '-'}'),
                   const SizedBox(height: 8),
                   Container(
                     width: double.infinity,

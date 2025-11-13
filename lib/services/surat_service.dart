@@ -103,7 +103,8 @@ class SuratService {
   // Get letter details
   Future<Map<String, dynamic>?> getLetterDetails(String suratId) async {
     try {
-      DocumentSnapshot doc = await _firestore.collection('surat').doc(suratId).get();
+      DocumentSnapshot doc =
+          await _firestore.collection('surat').doc(suratId).get();
       if (doc.exists) {
         return {...doc.data() as Map<String, dynamic>, 'id': doc.id};
       }
@@ -116,7 +117,8 @@ class SuratService {
   // Get letter status history
   Future<List<Map<String, dynamic>>> getLetterHistory(String suratId) async {
     try {
-      DocumentSnapshot doc = await _firestore.collection('surat').doc(suratId).get();
+      DocumentSnapshot doc =
+          await _firestore.collection('surat').doc(suratId).get();
       if (doc.exists) {
         List<dynamic> history = doc.get('riwayatStatus');
         return List<Map<String, dynamic>>.from(history);
@@ -168,6 +170,83 @@ class SuratService {
       }
 
       return stats;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Get statistics for admin dashboard
+  Future<Map<String, int>> getStatistik() async {
+    try {
+      QuerySnapshot snapshot = await _firestore.collection('surat').get();
+
+      Map<String, int> stats = {
+        'total': snapshot.docs.length,
+        'pending': 0,
+        'approved': 0,
+        'rejected': 0,
+      };
+
+      for (var doc in snapshot.docs) {
+        String status = doc.get('status');
+        if (status.contains('menunggu')) {
+          stats['pending'] = (stats['pending'] ?? 0) + 1;
+        } else if (status == 'selesai') {
+          stats['approved'] = (stats['approved'] ?? 0) + 1;
+        } else if (status == 'ditolak') {
+          stats['rejected'] = (stats['rejected'] ?? 0) + 1;
+        }
+      }
+
+      return stats;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Get surat by ID
+  Future<Map<String, dynamic>?> getSuratById(String suratId) async {
+    return await getLetterDetails(suratId);
+  }
+
+  // Get surat stream for real-time updates
+  Stream<QuerySnapshot> getSuratStream({String? status}) {
+    Query query = _firestore.collection('surat');
+    if (status != null) {
+      query = query.where('status', isEqualTo: status);
+    }
+    return query.orderBy('tanggalPengajuan', descending: true).snapshots();
+  }
+
+  // Get riwayat surat stream
+  Stream<QuerySnapshot> getRiwayatSuratStream(String userId) {
+    return _firestore
+        .collection('surat')
+        .where('pembuatId', isEqualTo: userId)
+        .orderBy('tanggalPengajuan', descending: true)
+        .snapshots();
+  }
+
+  // Search surat
+  Future<List<Map<String, dynamic>>> cariSurat(String keyword) async {
+    try {
+      QuerySnapshot snapshot = await _firestore.collection('surat').get();
+
+      return snapshot.docs
+          .where((doc) {
+            Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+            String kategori = data['kategori']?.toString().toLowerCase() ?? '';
+            String keperluan =
+                data['keperluan']?.toString().toLowerCase() ?? '';
+            String status = data['status']?.toString().toLowerCase() ?? '';
+            String searchTerm = keyword.toLowerCase();
+
+            return kategori.contains(searchTerm) ||
+                keperluan.contains(searchTerm) ||
+                status.contains(searchTerm);
+          })
+          .map((doc) => {...doc.data() as Map<String, dynamic>, 'id': doc.id})
+          .toList();
     } catch (e) {
       rethrow;
     }

@@ -333,8 +333,9 @@ class _DetailSuratScreenState extends State<DetailSuratScreen> {
                   .doc(widget.surat.id)
                   .snapshots(),
               builder: (context, snapshot) {
-                if (!snapshot.hasData)
+                if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
+                }
                 final updatedSurat = Surat.fromFirestore(snapshot.data!);
 
                 return SingleChildScrollView(

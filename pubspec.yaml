@@ -19,7 +19,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -30,39 +30,40 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  # Firebase
   firebase_core: ^2.32.0
-  cloud_firestore: ^4.17.5
   firebase_auth: ^4.20.0
+  cloud_firestore: ^4.17.5
   firebase_storage: ^11.7.7
+  firebase_messaging: ^14.8.0
 
   # Supabase
   supabase_flutter: ^2.5.2
 
-  # Firebase & Supabase (yang sudah ada)
-  firebase_core: ^2.27.2
-  firebase_auth: ^4.18.0
-  cloud_firestore: ^4.15.10
-  supabase_flutter: ^2.5.0
-  firebase_messaging: ^14.8.0 # Untuk Notifikasi
-
+  # State Management & Utils
   provider: ^6.1.2
   intl: ^0.19.0
   shared_preferences: ^2.2.3
-  qr_flutter: ^4.1.0 # Untuk QR Code
-  
-  image_picker: ^1.1.2
+
+  # UI Components
+  qr_flutter: ^4.1.0
   cupertino_icons: ^1.0.2
+
+  # File & Media
+  image_picker: ^1.1.2
+  file_picker: ^8.0.0+1
+
+  # Navigation & Links
   app_links: ^3.4.1
-  rxdart: ^0.28.0
   url_launcher: ^6.2.6
+
+  # Other
+  rxdart: ^0.28.0
   uuid: ^4.3.3
   path: ^1.9.0
-  file_picker: ^8.0.0+1
-  # Encryption and secure storage for client-side field encryption
   cryptography: ^2.1.0
   flutter_secure_storage: ^8.0.0
-  # Temporarily remove flutter_local_notifications due to Android build conflicts.
-  # We'll re-add or upgrade it later once we have a compatible plugin version.
   timeago: ^3.6.1
   pdf: ^3.10.8
   printing: ^5.12.0
@@ -120,4 +121,3 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
-
