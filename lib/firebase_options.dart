@@ -41,54 +41,48 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCKKYzCFxN8Og16wQY9e701ODwIvuXRhUA',
-    appId: '1:635645933703:web:83f0632ab32f39ca2e6022',
-    messagingSenderId: '635645933703',
-    projectId: 'pml3e2-a1af5',
-    authDomain: 'pml3e2-a1af5.firebaseapp.com',
-    databaseURL: 'https://pml3e2-a1af5-default-rtdb.firebaseio.com',
-    storageBucket: 'pml3e2-a1af5.firebasestorage.app',
-    measurementId: 'G-ZQESP5N2WN',
-  );
-
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAkyn0Ihp7MkqkOOoXFo-47FWH5Jj51ttE',
-    appId: '1:635645933703:android:184cce98acb33fff2e6022',
-    messagingSenderId: '635645933703',
-    projectId: 'pml3e2-a1af5',
-    databaseURL: 'https://pml3e2-a1af5-default-rtdb.firebaseio.com',
-    storageBucket: 'pml3e2-a1af5.firebasestorage.app',
+    apiKey: 'AIzaSyDpgkS3UhWX7Tic3qoOvjrIos3kNv9TmgQ',
+    appId: '1:524646525431:web:40d19cdd465670384366f2',
+    messagingSenderId: '524646525431',
+    projectId: 'aplikasi-surat-mobile',
+    authDomain: 'aplikasi-surat-mobile.firebaseapp.com',
+    storageBucket: 'aplikasi-surat-mobile.firebasestorage.app',
+    measurementId: 'G-XGH7P0BTT6',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyD0Frs-EfiCeGaNByJ7Z0IKCjBFdRo-jRQ',
-    appId: '1:635645933703:ios:05a1633674320a5b2e6022',
-    messagingSenderId: '635645933703',
-    projectId: 'pml3e2-a1af5',
-    databaseURL: 'https://pml3e2-a1af5-default-rtdb.firebaseio.com',
-    storageBucket: 'pml3e2-a1af5.firebasestorage.app',
+    apiKey: 'AIzaSyBZrvWGPhgTIwwyp1vDLSLTJWhBSLgcShI',
+    appId: '1:524646525431:ios:2b96681080a292134366f2',
+    messagingSenderId: '524646525431',
+    projectId: 'aplikasi-surat-mobile',
+    storageBucket: 'aplikasi-surat-mobile.firebasestorage.app',
     iosBundleId: 'com.example.suratMobileSukorame',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyD0Frs-EfiCeGaNByJ7Z0IKCjBFdRo-jRQ',
-    appId: '1:635645933703:ios:05a1633674320a5b2e6022',
-    messagingSenderId: '635645933703',
-    projectId: 'pml3e2-a1af5',
-    databaseURL: 'https://pml3e2-a1af5-default-rtdb.firebaseio.com',
-    storageBucket: 'pml3e2-a1af5.firebasestorage.app',
+    apiKey: 'AIzaSyBZrvWGPhgTIwwyp1vDLSLTJWhBSLgcShI',
+    appId: '1:524646525431:ios:2b96681080a292134366f2',
+    messagingSenderId: '524646525431',
+    projectId: 'aplikasi-surat-mobile',
+    storageBucket: 'aplikasi-surat-mobile.firebasestorage.app',
     iosBundleId: 'com.example.suratMobileSukorame',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCKKYzCFxN8Og16wQY9e701ODwIvuXRhUA',
-    appId: '1:635645933703:web:85b418af65dcee102e6022',
-    messagingSenderId: '635645933703',
-    projectId: 'pml3e2-a1af5',
-    authDomain: 'pml3e2-a1af5.firebaseapp.com',
-    databaseURL: 'https://pml3e2-a1af5-default-rtdb.firebaseio.com',
-    storageBucket: 'pml3e2-a1af5.firebasestorage.app',
-    measurementId: 'G-GEVY1MR45P',
+    apiKey: 'AIzaSyDpgkS3UhWX7Tic3qoOvjrIos3kNv9TmgQ',
+    appId: '1:524646525431:web:a44b61057f405b064366f2',
+    messagingSenderId: '524646525431',
+    projectId: 'aplikasi-surat-mobile',
+    authDomain: 'aplikasi-surat-mobile.firebaseapp.com',
+    storageBucket: 'aplikasi-surat-mobile.firebasestorage.app',
+    measurementId: 'G-X2N3G17PEP',
   );
 
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyC_fPn5fFhQhz9lFqcOQNcGoZEWIqMJGZE',
+    appId: '1:524646525431:android:86af0dc2f0c7fab04366f2',
+    messagingSenderId: '524646525431',
+    projectId: 'aplikasi-surat-mobile',
+    storageBucket: 'aplikasi-surat-mobile.firebasestorage.app',
+  );
 }

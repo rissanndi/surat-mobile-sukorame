@@ -1,6 +1,5 @@
 {
-    "cmake.sourceDirectory": "/home/risandi/surat_mobile_sukorame/linux",
-    "editor.linkedEditing": true,
+    "java.configuration.updateBuildConfiguration": "automatic",
     "cmake.ignoreCMakeListsMissing": true,
-    "java.configuration.updateBuildConfiguration": "automatic"
+    "editor.linkedEditing": true
 }

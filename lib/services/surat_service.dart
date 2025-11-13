@@ -1,156 +1,175 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/surat.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SuratService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String collection = 'surat';
 
-  // Tambah surat baru
-  Future<String> tambahSurat(Surat surat) async {
+  // Create new letter request
+  Future<String> createSurat({
+    required Map<String, dynamic> dataPemohon,
+    required String kategori,
+    required String keperluan,
+    String? urlTtd,
+  }) async {
     try {
-      DocumentReference docRef = await _firestore
-          .collection(collection)
-          .add(surat.toMap());
+      // Get current user
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('User tidak ditemukan');
+
+      // Create new letter document
+      DocumentReference docRef = await _firestore.collection('surat').add({
+        'dataPemohon': dataPemohon,
+        'kategori': kategori,
+        'keperluan': keperluan,
+        'pembuatId': user.uid,
+        'status': urlTtd != null ? 'menunggu_rt' : 'menunggu_upload_ttd',
+        'tanggalPengajuan': DateTime.now(),
+        'urlTtd': urlTtd,
+        'riwayatStatus': [
+          {
+            'status': 'dibuat',
+            'timestamp': DateTime.now(),
+            'oleh': user.uid,
+          }
+        ]
+      });
+
       return docRef.id;
     } catch (e) {
-      throw Exception('Gagal menambahkan surat: $e');
+      rethrow;
     }
   }
 
-  // Ambil surat yang masih dalam proses
-  Stream<List<Surat>> getSuratStream() {
-    return _firestore
-        .collection(collection)
-        .where('status', whereIn: ['pending', 'diproses'])
-        .orderBy('tanggal', descending: true)
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => Surat.fromMap(doc.data(), doc.id))
-              .toList();
-        });
+  // Update letter status
+  Future<void> updateStatus({
+    required String suratId,
+    required String status,
+    required String olehUid,
+    String? catatan,
+  }) async {
+    try {
+      await _firestore.collection('surat').doc(suratId).update({
+        'status': status,
+        'riwayatStatus': FieldValue.arrayUnion([
+          {
+            'status': status,
+            'timestamp': DateTime.now(),
+            'oleh': olehUid,
+            if (catatan != null) 'catatan': catatan,
+          }
+        ]),
+      });
+    } catch (e) {
+      rethrow;
+    }
   }
 
-  // Ambil surat berdasarkan ID
-  Future<Surat?> getSuratById(String id) async {
+  // Get letters for RT
+  Stream<QuerySnapshot> getLettersForRT(String rt, String rw) {
+    return _firestore
+        .collection('surat')
+        .where('dataPemohon.rt', isEqualTo: rt)
+        .where('dataPemohon.rw', isEqualTo: rw)
+        .where('status', isEqualTo: 'menunggu_rt')
+        .snapshots();
+  }
+
+  // Get letters for RW
+  Stream<QuerySnapshot> getLettersForRW(String rw) {
+    return _firestore
+        .collection('surat')
+        .where('dataPemohon.rw', isEqualTo: rw)
+        .where('status', isEqualTo: 'menunggu_rw')
+        .snapshots();
+  }
+
+  // Get letters for Kelurahan
+  Stream<QuerySnapshot> getLettersForKelurahan() {
+    return _firestore
+        .collection('surat')
+        .where('status', isEqualTo: 'menunggu_kelurahan')
+        .snapshots();
+  }
+
+  // Get user's letters
+  Stream<QuerySnapshot> getUserLetters(String userId) {
+    return _firestore
+        .collection('surat')
+        .where('pembuatId', isEqualTo: userId)
+        .orderBy('tanggalPengajuan', descending: true)
+        .snapshots();
+  }
+
+  // Get letter details
+  Future<Map<String, dynamic>?> getLetterDetails(String suratId) async {
     try {
-      DocumentSnapshot doc = await _firestore
-          .collection(collection)
-          .doc(id)
-          .get();
+      DocumentSnapshot doc = await _firestore.collection('surat').doc(suratId).get();
       if (doc.exists) {
-        return Surat.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+        return {...doc.data() as Map<String, dynamic>, 'id': doc.id};
       }
       return null;
     } catch (e) {
-      throw Exception('Gagal mengambil surat: $e');
+      rethrow;
     }
   }
 
-  // Update status surat
-  Future<void> updateStatus(
-    String id,
-    String status, {
-    String? keterangan,
-  }) async {
+  // Get letter status history
+  Future<List<Map<String, dynamic>>> getLetterHistory(String suratId) async {
     try {
-      final Map<String, dynamic> updateData = {'status': status};
-      if (keterangan != null) {
-        updateData['keterangan'] = keterangan;
+      DocumentSnapshot doc = await _firestore.collection('surat').doc(suratId).get();
+      if (doc.exists) {
+        List<dynamic> history = doc.get('riwayatStatus');
+        return List<Map<String, dynamic>>.from(history);
       }
-      await _firestore.collection(collection).doc(id).update(updateData);
+      return [];
     } catch (e) {
-      throw Exception('Gagal mengupdate status surat: $e');
+      rethrow;
     }
   }
 
-  // Cari surat berdasarkan nomor, pemohon, atau jenis
-  Stream<List<Surat>> cariSurat(String keyword, {String status = 'active'}) {
-    // Convert keyword to lowercase for case-insensitive search
-    keyword = keyword.toLowerCase();
-
-    Query query = _firestore.collection(collection);
-
-    // Filter berdasarkan status
-    if (status == 'active') {
-      query = query.where('status', whereIn: ['pending', 'diproses']);
-    } else if (status == 'history') {
-      query = query.where('status', whereIn: ['selesai', 'ditolak']);
-    }
-
-    return query.orderBy('tanggal', descending: true).snapshots().map((
-      snapshot,
-    ) {
-      // Filter hasil berdasarkan keyword di pemohon, nomor, atau jenis
-      return snapshot.docs
-          .map(
-            (doc) => Surat.fromMap(doc.data() as Map<String, dynamic>, doc.id),
-          )
-          .where((surat) {
-            return surat.pemohon.toLowerCase().contains(keyword) ||
-                surat.nomor.toLowerCase().contains(keyword) ||
-                surat.jenis.toLowerCase().contains(keyword);
-          })
-          .toList();
-    });
-  }
-
-  // Hapus surat
-  Future<void> hapusSurat(String id) async {
+  // Upload signed letter
+  Future<void> uploadSignedLetter(String suratId, String urlTtd) async {
     try {
-      await _firestore.collection(collection).doc(id).delete();
+      await _firestore.collection('surat').doc(suratId).update({
+        'urlTtd': urlTtd,
+        'status': 'menunggu_rt',
+      });
     } catch (e) {
-      throw Exception('Gagal menghapus surat: $e');
+      rethrow;
     }
   }
 
-  // Ambil riwayat surat (yang sudah selesai atau ditolak)
-  Stream<List<Surat>> getRiwayatSuratStream() {
-    return _firestore
-        .collection(collection)
-        .where('status', whereIn: ['selesai', 'ditolak'])
-        .orderBy('tanggal', descending: true)
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => Surat.fromMap(doc.data(), doc.id))
-              .toList();
-        });
-  }
-
-  // Ambil statistik surat
-  Future<Map<String, int>> getStatistik() async {
+  // Get letter statistics
+  Future<Map<String, int>> getLetterStatistics(String rt, String rw) async {
     try {
-      QuerySnapshot snapshot = await _firestore.collection(collection).get();
+      QuerySnapshot snapshot = await _firestore
+          .collection('surat')
+          .where('dataPemohon.rt', isEqualTo: rt)
+          .where('dataPemohon.rw', isEqualTo: rw)
+          .get();
 
-      int totalSurat = snapshot.size;
-      int pending = 0;
-      int diproses = 0;
-      int selesai = 0;
+      Map<String, int> stats = {
+        'total': 0,
+        'pending': 0,
+        'approved': 0,
+        'rejected': 0,
+      };
 
       for (var doc in snapshot.docs) {
-        String status = (doc.data() as Map<String, dynamic>)['status'] ?? '';
-        switch (status) {
-          case 'pending':
-            pending++;
-            break;
-          case 'diproses':
-            diproses++;
-            break;
-          case 'selesai':
-            selesai++;
-            break;
+        stats['total'] = (stats['total'] ?? 0) + 1;
+        String status = doc.get('status');
+        if (status.contains('menunggu')) {
+          stats['pending'] = (stats['pending'] ?? 0) + 1;
+        } else if (status == 'selesai') {
+          stats['approved'] = (stats['approved'] ?? 0) + 1;
+        } else if (status == 'ditolak') {
+          stats['rejected'] = (stats['rejected'] ?? 0) + 1;
         }
       }
 
-      return {
-        'total': totalSurat,
-        'pending': pending,
-        'diproses': diproses,
-        'selesai': selesai,
-      };
+      return stats;
     } catch (e) {
-      throw Exception('Gagal mengambil statistik: $e');
+      rethrow;
     }
   }
 }

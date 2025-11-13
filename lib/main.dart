@@ -1,118 +1,60 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, TargetPlatform;
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'supabase_config.dart';
-import 'models/surat.dart';
-import 'services/surat_service.dart';
-import 'pages/beranda_page.dart';
-import 'pages/pengajuan_page.dart';
-import 'pages/tervalidasi_page.dart';
+import 'package:surat_mobile_sukorame/firebase_options.dart';
+import 'package:surat_mobile_sukorame/screens/auth/auth_gate.dart';
+import 'package:surat_mobile_sukorame/screens/account_screen.dart';
+import 'package:surat_mobile_sukorame/screens/chat_list_screen.dart';
+import 'package:surat_mobile_sukorame/screens/form_surat_screen.dart';
+import 'package:surat_mobile_sukorame/screens/riwayat_surat_screen.dart';
+import 'package:surat_mobile_sukorame/screens/notification_screen.dart';
+import 'package:surat_mobile_sukorame/services/app_state.dart';
+import 'package:surat_mobile_sukorame/services/notification_service.dart';
+import 'package:surat_mobile_sukorame/theme/app_theme.dart';
 
-import 'pages/akun_admin_page.dart';
+// Fungsi untuk menangani notifikasi saat aplikasi di background/terminated
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform); // Pastikan Firebase terinisialisasi
+  print("Menangani notifikasi background: ${message.messageId}");
+  // Anda bisa tambahkan logika di sini jika perlu, misal menyimpan notifikasi ke database lokal.
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Inisialisasi Supabase
-  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
-
-  // Check if running on Linux and provide a default configuration
-  if (defaultTargetPlatform == TargetPlatform.linux) {
-    await Firebase.initializeApp(
-      options: FirebaseOptions(
-        apiKey: 'AIzaSyCKKYzCFxN8Og16wQY9e701ODwIvuXRhUA',
-        appId: '1:635645933703:web:83f0632ab32f39ca2e6022',
-        messagingSenderId: '635645933703',
-        projectId: 'pml3e2-a1af5',
-        authDomain: 'pml3e2-a1af5.firebaseapp.com',
-        databaseURL: 'https://pml3e2-a1af5-default-rtdb.firebaseio.com',
-        storageBucket: 'pml3e2-a1af5.firebasestorage.app',
-      ),
-    );
-  } else {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  }
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Supabase.initialize(
+    url: 'https://kbkaqntbkulplmmwwmhw.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtia2FxbnRia3VscGxtbXd3bWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4MTk0MTYsImV4cCI6MjA3NTM5NTQxNn0.UL3MlABGTLyT4Nvaz8Zzh7Oh9gyI1RM13VEGZX-rAnQ',
+  );
+  
+  // Setup listener notifikasi background
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Surat Mobile Sukorame',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        useMaterial3: true,
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFFF5F7F6),
-          selectedItemColor: Color(0xFF1B7B3A), // hijau utama
-          unselectedItemColor: Colors.grey,
-          selectedIconTheme: IconThemeData(color: Color(0xFF1B7B3A)),
-          unselectedIconTheme: IconThemeData(color: Colors.grey),
-          showUnselectedLabels: true,
-        ),
-      ),
-      home: const MainNavigation(),
-    );
-  }
+  State<MyApp> createState() => _MyAppState();
 }
 
-class MainNavigation extends StatefulWidget {
-  const MainNavigation({super.key});
+class _MyAppState extends State<MyApp> {
+  final NotificationService _notificationService = NotificationService();
+  final AppState _appState = AppState();
 
   @override
-  State<MainNavigation> createState() => _MainNavigationState();
-}
-
-class _MainNavigationState extends State<MainNavigation> {
-  int _selectedIndex = 0;
-
-  static final List<Widget> _pages = <Widget>[
-    BerandaPage(),
-    PengajuanPage(),
-    TervalidasiPage(),
-    AkunAdminPage(),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  void initState() {
+    super.initState();
+    _initializeNotifications();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.description),
-            label: 'Pengajuan',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.verified),
-            label: 'Tervalidasi',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
-        ],
-      ),
-    );
-  }
-}
-
+<<<<<<< HEAD
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
   final String title;
@@ -162,10 +104,17 @@ class _MyHomePageState extends State<MyHomePage> {
         _isLoading = false;
       });
     }
+=======
+  Future<void> _initializeNotifications() async {
+    await Future.delayed(Duration.zero); // Wait for widget to be mounted
+    if (!mounted) return;
+    await _notificationService.initialize(context);
+>>>>>>> origin/3-feat-halaman-dasboard-warga
   }
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -173,27 +122,3 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            if (_isLoading)
-              const CircularProgressIndicator()
-            else
-              ElevatedButton(
-                onPressed: _testFirebaseConnection,
-                child: const Text('Test Koneksi Firebase'),
-              ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                _message,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
