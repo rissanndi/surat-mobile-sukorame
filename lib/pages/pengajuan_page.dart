@@ -253,8 +253,8 @@ class _PengajuanPageState extends State<PengajuanPage>
                       );
                     }
 
-                    final querySnapshot = snapshot.data as QuerySnapshot?;
-                    final suratList = querySnapshot?.docs ?? [];
+                    final suratList =
+                        (snapshot.data as QuerySnapshot?)?.docs ?? [];
 
                     if (suratList.isEmpty) {
                       return Center(
@@ -398,8 +398,8 @@ class _PengajuanPageState extends State<PengajuanPage>
                       );
                     }
 
-                    final querySnapshot = snapshot.data as QuerySnapshot?;
-                    final suratList = querySnapshot?.docs ?? [];
+                    final suratList =
+                        (snapshot.data as QuerySnapshot?)?.docs ?? [];
 
                     if (suratList.isEmpty) {
                       return Center(
