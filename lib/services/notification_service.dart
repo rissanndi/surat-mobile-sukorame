@@ -25,9 +25,7 @@ class NotificationService {
 
     // Get FCM token
     String? token = await _messaging.getToken();
-    if (token != null) {
-      await _saveFCMToken(token);
-    }
+    await _saveFCMToken(token);
 
     // Listen for token refresh
     _messaging.onTokenRefresh.listen((token) async {
@@ -40,7 +38,8 @@ class NotificationService {
       if (message.notification != null && context.mounted) {
         final title = message.notification?.title ?? 'Notifikasi';
         final body = message.notification?.body ?? '';
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$title\n$body')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('$title\n$body')));
       }
     });
 
@@ -49,15 +48,16 @@ class NotificationService {
     });
   }
 
-  // Save FCM token
-  Future<void> _saveFCMToken(String token) async {
+  // Save FCM token (token may be null)
+  Future<void> _saveFCMToken(String? token) async {
+    if (token == null || token.isEmpty) return;
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('fcmToken', token);
-      
-      // Save token to user's document in Firestore
+
+      // Save token to user's document in Firestore if userId exists
       String? userId = prefs.getString('userId');
-      if (userId != null) {
+      if (userId != null && userId.isNotEmpty) {
         await _firestore.collection('users').doc(userId).update({
           'fcmToken': token,
           'lastTokenUpdate': DateTime.now().toIso8601String(),
@@ -82,7 +82,9 @@ class NotificationService {
       // If message has a target user id in data, save under that user; otherwise save globally
       final targetUserId = message.data['userId'] as String?;
       if (targetUserId != null && targetUserId.isNotEmpty) {
-        await _firestore.collection('notifications').add({...payload, 'userId': targetUserId});
+        await _firestore
+            .collection('notifications')
+            .add({...payload, 'userId': targetUserId});
       } else {
         await _firestore.collection('notifications').add(payload);
       }
@@ -121,7 +123,8 @@ class NotificationService {
   }) async {
     try {
       // Get user's FCM token
-      DocumentSnapshot userDoc = await _firestore.collection('users').doc(userId).get();
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(userId).get();
       String? fcmToken = userDoc.get('fcmToken') as String?;
 
       if (fcmToken == null) {

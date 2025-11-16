@@ -45,7 +45,8 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Anggota keluarga berhasil ditambahkan')),
+          const SnackBar(
+              content: Text('Anggota keluarga berhasil ditambahkan')),
         );
         Navigator.pop(context, true);
       }
@@ -138,7 +139,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                initialValue: _selectedJenisKelamin,
+                value: _selectedJenisKelamin,
                 decoration: const InputDecoration(labelText: 'Jenis Kelamin'),
                 items: ['Laki-laki', 'Perempuan']
                     .map((label) => DropdownMenuItem(
@@ -160,9 +161,16 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                initialValue: _selectedAgama,
+                value: _selectedAgama,
                 decoration: const InputDecoration(labelText: 'Agama'),
-                items: ['Islam', 'Kristen Protestan', 'Kristen Katolik', 'Hindu', 'Buddha', 'Khonghucu']
+                items: [
+                  'Islam',
+                  'Kristen Protestan',
+                  'Kristen Katolik',
+                  'Hindu',
+                  'Buddha',
+                  'Khonghucu'
+                ]
                     .map((label) => DropdownMenuItem(
                           value: label,
                           child: Text(label),
@@ -182,8 +190,9 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                initialValue: _selectedStatusKawin,
-                decoration: const InputDecoration(labelText: 'Status Perkawinan'),
+                value: _selectedStatusKawin,
+                decoration:
+                    const InputDecoration(labelText: 'Status Perkawinan'),
                 items: ['Belum Kawin', 'Kawin', 'Cerai Hidup', 'Cerai Mati']
                     .map((label) => DropdownMenuItem(
                           value: label,
@@ -215,8 +224,9 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                initialValue: _selectedStatusKeluarga,
-                decoration: const InputDecoration(labelText: 'Status di Keluarga'),
+                value: _selectedStatusKeluarga,
+                decoration:
+                    const InputDecoration(labelText: 'Status di Keluarga'),
                 items: ['Istri', 'Anak', 'Famili Lain']
                     .map((label) => DropdownMenuItem(
                           value: label,

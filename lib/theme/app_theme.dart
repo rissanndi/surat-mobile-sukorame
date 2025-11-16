@@ -72,7 +72,7 @@ class AppTheme {
       foregroundColor: textPrimary,
       iconTheme: IconThemeData(color: textPrimary),
     ),
-    cardTheme: CardThemeData(
+    cardTheme: CardTheme(
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
@@ -139,12 +139,12 @@ class AppTheme {
       selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
       showUnselectedLabels: true,
     ),
-    tabBarTheme: const TabBarThemeData(
+    tabBarTheme: const TabBarTheme(
       labelColor: primary,
       unselectedLabelColor: textSecondary,
       indicatorColor: primary,
     ),
-    dialogTheme: DialogThemeData(
+    dialogTheme: DialogTheme(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),
@@ -169,7 +169,7 @@ class AppTheme {
       foregroundColor: darkTextPrimary,
       iconTheme: IconThemeData(color: darkTextPrimary),
     ),
-    cardTheme: CardThemeData(
+    cardTheme: CardTheme(
       elevation: 2,
       color: darkSurface,
       shape: RoundedRectangleBorder(
@@ -239,12 +239,12 @@ class AppTheme {
       selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
       showUnselectedLabels: true,
     ),
-    tabBarTheme: const TabBarThemeData(
+    tabBarTheme: const TabBarTheme(
       labelColor: primary,
       unselectedLabelColor: darkTextSecondary,
       indicatorColor: primary,
     ),
-    dialogTheme: DialogThemeData(
+    dialogTheme: DialogTheme(
       backgroundColor: darkSurface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),

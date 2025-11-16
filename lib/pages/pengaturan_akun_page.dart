@@ -143,7 +143,8 @@ class _PengaturanAkunPageState extends State<PengaturanAkunPage> {
                         onChanged: (value) {
                           // TODO: Save notification settings
                         },
-                        activeThumbColor: const Color(0xFF1B7B3A),
+                        thumbColor:
+                            MaterialStateProperty.all(const Color(0xFF1B7B3A)),
                       ),
                     ),
                     const Divider(),

@@ -87,9 +87,8 @@ class _NewSuratScreenState extends State<NewSuratScreen> {
       }
 
       // Buat dokumen baru di koleksi 'surat'
-      DocumentReference docRef = FirebaseFirestore.instance
-          .collection('surat')
-          .doc();
+      DocumentReference docRef =
+          FirebaseFirestore.instance.collection('surat').doc();
 
       // Buat objek Surat dengan data awal
       final newSurat = Surat(
@@ -170,7 +169,7 @@ class _NewSuratScreenState extends State<NewSuratScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                initialValue: _selectedKategori,
+                value: _selectedKategori,
                 decoration: const InputDecoration(
                   labelText: 'Kategori Surat',
                   border: OutlineInputBorder(),

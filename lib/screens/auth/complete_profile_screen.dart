@@ -45,9 +45,17 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
   // Opsi untuk Autocomplete Pekerjaan
   static const List<String> _pekerjaanOptions = <String>[
-    'Pegawai Negeri Sipil', 'Pegawai Swasta', 'Wiraswasta', 'Pelajar/Mahasiswa', 'Mengurus Rumah Tangga', 'Tidak Bekerja', 'Pensiunan', 'TNI', 'POLRI'
+    'Pegawai Negeri Sipil',
+    'Pegawai Swasta',
+    'Wiraswasta',
+    'Pelajar/Mahasiswa',
+    'Mengurus Rumah Tangga',
+    'Tidak Bekerja',
+    'Pensiunan',
+    'TNI',
+    'POLRI'
   ];
-  
+
   @override
   void initState() {
     super.initState();
@@ -66,7 +74,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     _rwController.dispose();
     super.dispose();
   }
-  
+
   // Fungsi Simpan dan Muat Draf (Lengkap)
   Future<void> _saveDraft() async {
     final prefs = await SharedPreferences.getInstance();
@@ -81,9 +89,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     await prefs.setString('draft_jenisKelamin', _selectedJenisKelamin ?? '');
     await prefs.setString('draft_agama', _selectedAgama ?? '');
     await prefs.setString('draft_statusKawin', _selectedStatusKawin ?? '');
-    await prefs.setString('draft_statusKeluarga', _selectedStatusKeluarga ?? '');
+    await prefs.setString(
+        'draft_statusKeluarga', _selectedStatusKeluarga ?? '');
     if (_selectedDate != null) {
-      await prefs.setString('draft_tanggalLahir', _selectedDate!.toIso8601String());
+      await prefs.setString(
+          'draft_tanggalLahir', _selectedDate!.toIso8601String());
     }
   }
 
@@ -117,11 +127,16 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
   }
-  
+
   // Fungsi Date Picker
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(context: context, initialDate: _selectedDate ?? DateTime.now(), firstDate: DateTime(1900), lastDate: DateTime.now());
-    if (picked != null && picked != _selectedDate) setState(() => _selectedDate = picked);
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: _selectedDate ?? DateTime.now(),
+        firstDate: DateTime(1900),
+        lastDate: DateTime.now());
+    if (picked != null && picked != _selectedDate)
+      setState(() => _selectedDate = picked);
   }
 
   // Fungsi Upload File dengan Pilihan Kamera/Galeri
@@ -135,8 +150,20 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         return SafeArea(
           child: Wrap(
             children: <Widget>[
-              ListTile(leading: const Icon(Icons.photo_library), title: const Text('Pilih dari Galeri'), onTap: () { source = ImageSource.gallery; Navigator.of(context).pop(); }),
-              ListTile(leading: const Icon(Icons.photo_camera), title: const Text('Ambil Foto dari Kamera'), onTap: () { source = ImageSource.camera; Navigator.of(context).pop(); }),
+              ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: const Text('Pilih dari Galeri'),
+                  onTap: () {
+                    source = ImageSource.gallery;
+                    Navigator.of(context).pop();
+                  }),
+              ListTile(
+                  leading: const Icon(Icons.photo_camera),
+                  title: const Text('Ambil Foto dari Kamera'),
+                  onTap: () {
+                    source = ImageSource.camera;
+                    Navigator.of(context).pop();
+                  }),
             ],
           ),
         );
@@ -148,7 +175,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     if (image == null) return;
 
     File file = File(image.path);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Mengunggah ${file.path.split('/').last}...")));
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Mengunggah ${file.path.split('/').last}...")));
     final publicUrl = await _supabaseService.uploadFile(file, docType);
 
     if (publicUrl != null) {
@@ -161,30 +189,44 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           _urlKk = publicUrl;
         }
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$docType berhasil diunggah!"), backgroundColor: Colors.green));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("$docType berhasil diunggah!"),
+          backgroundColor: Colors.green));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Gagal mengunggah $docType."), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Gagal mengunggah $docType."),
+          backgroundColor: Colors.red));
     }
   }
-  
+
   // Fungsi Simpan Profil ke Firestore
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate() || !_setujuDenganSyarat) {
-       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Mohon lengkapi semua data dan centang kotak persetujuan."), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content:
+              Text("Mohon lengkapi semua data dan centang kotak persetujuan."),
+          backgroundColor: Colors.red));
       return;
     }
     if (_urlKtp == null || _urlKk == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Mohon unggah KTP dan KK."), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Mohon unggah KTP dan KK."),
+          backgroundColor: Colors.red));
       return;
     }
-    setState(() { _isLoading = true; });
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
       final fullAddress = _alamatController.text.trim();
       final addressParts = fullAddress.split(',');
       final namaJalan = addressParts.isNotEmpty ? addressParts[0].trim() : '';
 
-      await FirebaseFirestore.instance.collection('users').doc(widget.user.uid).set({
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.user.uid)
+          .set({
         'uid': widget.user.uid,
         'email': widget.user.email,
         'nama': _namaController.text.trim(),
@@ -206,7 +248,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         'rw': _rwController.text.trim(),
         'statusDiKeluarga': _selectedStatusKeluarga ?? '',
         'statusPerkawinan': _selectedStatusKawin ?? '',
-        'tanggalLahir': _selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : '',
+        'tanggalLahir': _selectedDate != null
+            ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
+            : '',
         'tempatLahir': _tempatLahirController.text.trim(),
         'urlFotoKk': _urlKk ?? '',
         'urlFotoKtp': _urlKtp ?? '',
@@ -221,16 +265,23 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Gagal menyimpan profil: $e"), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Gagal menyimpan profil: $e"),
+          backgroundColor: Colors.red));
     } finally {
-       if (mounted) setState(() { _isLoading = false; });
+      if (mounted)
+        setState(() {
+          _isLoading = false;
+        });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Lengkapi Profil Diri"), automaticallyImplyLeading: false),
+      appBar: AppBar(
+          title: const Text("Lengkapi Profil Diri"),
+          automaticallyImplyLeading: false),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -239,58 +290,167 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text("Silakan isi data diri Anda sesuai dokumen resmi untuk melanjutkan.", style: Theme.of(context).textTheme.bodyMedium),
+              Text(
+                  "Silakan isi data diri Anda sesuai dokumen resmi untuk melanjutkan.",
+                  style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: 24),
-              TextFormField(controller: _namaController, decoration: const InputDecoration(labelText: "Nama Lengkap (sesuai KTP)"), validator: (v) => v!.isEmpty ? 'Wajib diisi' : null),
+              TextFormField(
+                  controller: _namaController,
+                  decoration: const InputDecoration(
+                      labelText: "Nama Lengkap (sesuai KTP)"),
+                  validator: (v) => v!.isEmpty ? 'Wajib diisi' : null),
               const SizedBox(height: 16),
-              TextFormField(controller: _nikController, decoration: const InputDecoration(labelText: "NIK"), keyboardType: TextInputType.number, maxLength: 16, validator: (v) => v!.length != 16 ? 'NIK harus 16 digit' : null),
+              TextFormField(
+                  controller: _nikController,
+                  decoration: const InputDecoration(labelText: "NIK"),
+                  keyboardType: TextInputType.number,
+                  maxLength: 16,
+                  validator: (v) =>
+                      v!.length != 16 ? 'NIK harus 16 digit' : null),
               const SizedBox(height: 16),
-              TextFormField(controller: _tempatLahirController, decoration: const InputDecoration(labelText: "Tempat Lahir"), validator: (v) => v!.isEmpty ? 'Wajib diisi' : null),
+              TextFormField(
+                  controller: _tempatLahirController,
+                  decoration: const InputDecoration(labelText: "Tempat Lahir"),
+                  validator: (v) => v!.isEmpty ? 'Wajib diisi' : null),
               const SizedBox(height: 16),
               ListTile(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4), side: BorderSide(color: Colors.grey.shade400)),
-                title: Text(_selectedDate == null ? 'Pilih Tanggal Lahir' : 'Tgl. Lahir: ${DateFormat('dd MMMM yyyy').format(_selectedDate!)}'),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                    side: BorderSide(color: Colors.grey.shade400)),
+                title: Text(_selectedDate == null
+                    ? 'Pilih Tanggal Lahir'
+                    : 'Tgl. Lahir: ${DateFormat('dd MMMM yyyy').format(_selectedDate!)}'),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () => _selectDate(context),
               ),
               const SizedBox(height: 16),
-              const Text("Jenis Kelamin", style: TextStyle(fontSize: 16, color: Colors.black54)),
+              const Text("Jenis Kelamin",
+                  style: TextStyle(fontSize: 16, color: Colors.black54)),
               Row(
                 children: [
-                  Expanded(child: RadioListTile<String>(title: const Text('Laki-laki'), value: 'Laki-laki', groupValue: _selectedJenisKelamin, onChanged: (value) => setState(() => _selectedJenisKelamin = value))),
-                  Expanded(child: RadioListTile<String>(title: const Text('Perempuan'), value: 'Perempuan', groupValue: _selectedJenisKelamin, onChanged: (value) => setState(() => _selectedJenisKelamin = value))),
+                  Expanded(
+                      child: RadioListTile<String>(
+                          title: const Text('Laki-laki'),
+                          value: 'Laki-laki',
+                          groupValue: _selectedJenisKelamin,
+                          onChanged: (value) =>
+                              setState(() => _selectedJenisKelamin = value))),
+                  Expanded(
+                      child: RadioListTile<String>(
+                          title: const Text('Perempuan'),
+                          value: 'Perempuan',
+                          groupValue: _selectedJenisKelamin,
+                          onChanged: (value) =>
+                              setState(() => _selectedJenisKelamin = value))),
                 ],
               ),
               const SizedBox(height: 16),
-              DropdownButtonFormField<String>(initialValue: _selectedAgama, decoration: const InputDecoration(labelText: 'Agama', border: OutlineInputBorder()), items: ['Islam', 'Kristen Protestan', 'Kristen Katolik', 'Hindu', 'Buddha', 'Khonghucu'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(), onChanged: (v) => setState(() => _selectedAgama = v), validator: (v) => v == null ? 'Wajib dipilih' : null),
+              DropdownButtonFormField<String>(
+                  value: _selectedAgama,
+                  decoration: const InputDecoration(
+                      labelText: 'Agama', border: OutlineInputBorder()),
+                  items: [
+                    'Islam',
+                    'Kristen Protestan',
+                    'Kristen Katolik',
+                    'Hindu',
+                    'Buddha',
+                    'Khonghucu'
+                  ]
+                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                      .toList(),
+                  onChanged: (v) => setState(() => _selectedAgama = v),
+                  validator: (v) => v == null ? 'Wajib dipilih' : null),
               const SizedBox(height: 16),
-              DropdownButtonFormField<String>(initialValue: _selectedStatusKawin, decoration: const InputDecoration(labelText: 'Status Perkawinan', border: OutlineInputBorder()), items: ['Belum Kawin', 'Kawin', 'Cerai Hidup', 'Cerai Mati'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(), onChanged: (v) => setState(() => _selectedStatusKawin = v), validator: (v) => v == null ? 'Wajib dipilih' : null),
+              DropdownButtonFormField<String>(
+                  value: _selectedStatusKawin,
+                  decoration: const InputDecoration(
+                      labelText: 'Status Perkawinan',
+                      border: OutlineInputBorder()),
+                  items: ['Belum Kawin', 'Kawin', 'Cerai Hidup', 'Cerai Mati']
+                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                      .toList(),
+                  onChanged: (v) => setState(() => _selectedStatusKawin = v),
+                  validator: (v) => v == null ? 'Wajib dipilih' : null),
               const SizedBox(height: 16),
               Autocomplete<String>(
                 initialValue: TextEditingValue(text: _pekerjaanController.text),
-                optionsBuilder: (TextEditingValue val) => val.text == '' ? const Iterable<String>.empty() : _pekerjaanOptions.where((o) => o.toLowerCase().contains(val.text.toLowerCase())),
-                onSelected: (String sel) { _pekerjaanController.text = sel; FocusScope.of(context).unfocus(); },
-                fieldViewBuilder: (context, controller, focusNode, onSubmitted) {
-                  return TextFormField(controller: controller, focusNode: focusNode, decoration: const InputDecoration(labelText: 'Pekerjaan'), validator: (v) => v!.isEmpty ? 'Wajib diisi' : null);
+                optionsBuilder: (TextEditingValue val) => val.text == ''
+                    ? const Iterable<String>.empty()
+                    : _pekerjaanOptions.where((o) =>
+                        o.toLowerCase().contains(val.text.toLowerCase())),
+                onSelected: (String sel) {
+                  _pekerjaanController.text = sel;
+                  FocusScope.of(context).unfocus();
+                },
+                fieldViewBuilder:
+                    (context, controller, focusNode, onSubmitted) {
+                  return TextFormField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      decoration: const InputDecoration(labelText: 'Pekerjaan'),
+                      validator: (v) => v!.isEmpty ? 'Wajib diisi' : null);
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(controller: _alamatController, decoration: const InputDecoration(labelText: "Alamat Lengkap"), validator: (v) => v!.isEmpty ? 'Wajib diisi' : null),
+              TextFormField(
+                  controller: _alamatController,
+                  decoration:
+                      const InputDecoration(labelText: "Alamat Lengkap"),
+                  validator: (v) => v!.isEmpty ? 'Wajib diisi' : null),
               const SizedBox(height: 16),
-              Row(children: [ Expanded(child: TextFormField(controller: _rtController, decoration: const InputDecoration(labelText: 'RT'), keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Wajib diisi' : null)), const SizedBox(width: 16), Expanded(child: TextFormField(controller: _rwController, decoration: const InputDecoration(labelText: 'RW'), keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Wajib diisi' : null)) ]),
+              Row(children: [
+                Expanded(
+                    child: TextFormField(
+                        controller: _rtController,
+                        decoration: const InputDecoration(labelText: 'RT'),
+                        keyboardType: TextInputType.number,
+                        validator: (v) => v!.isEmpty ? 'Wajib diisi' : null)),
+                const SizedBox(width: 16),
+                Expanded(
+                    child: TextFormField(
+                        controller: _rwController,
+                        decoration: const InputDecoration(labelText: 'RW'),
+                        keyboardType: TextInputType.number,
+                        validator: (v) => v!.isEmpty ? 'Wajib diisi' : null))
+              ]),
               const SizedBox(height: 16),
-              DropdownButtonFormField<String>(initialValue: _selectedStatusKeluarga, decoration: const InputDecoration(labelText: 'Status di Keluarga', border: OutlineInputBorder()), items: ['Kepala Keluarga', 'Istri', 'Anak', 'Famili Lain'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(), onChanged: (v) => setState(() => _selectedStatusKeluarga = v), validator: (v) => v == null ? 'Wajib dipilih' : null),
+              DropdownButtonFormField<String>(
+                  value: _selectedStatusKeluarga,
+                  decoration: const InputDecoration(
+                      labelText: 'Status di Keluarga',
+                      border: OutlineInputBorder()),
+                  items: ['Kepala Keluarga', 'Istri', 'Anak', 'Famili Lain']
+                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                      .toList(),
+                  onChanged: (v) => setState(() => _selectedStatusKeluarga = v),
+                  validator: (v) => v == null ? 'Wajib dipilih' : null),
               const SizedBox(height: 16),
-               TextFormField(controller: _noHpController, decoration: const InputDecoration(labelText: "Nomor HP (WhatsApp)"), keyboardType: TextInputType.phone, validator: (val) => val!.isEmpty ? 'Nomor HP tidak boleh kosong' : null),
+              TextFormField(
+                  controller: _noHpController,
+                  decoration:
+                      const InputDecoration(labelText: "Nomor HP (WhatsApp)"),
+                  keyboardType: TextInputType.phone,
+                  validator: (val) =>
+                      val!.isEmpty ? 'Nomor HP tidak boleh kosong' : null),
               const SizedBox(height: 24),
-              const Text("Dokumen Pendukung", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const Text("Dokumen Pendukung",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 8),
-              _buildUploadButton(title: 'Upload Foto KTP', fileName: _ktpFileName, onPressed: () => _pickAndUploadFile('ktp')),
+              _buildUploadButton(
+                  title: 'Upload Foto KTP',
+                  fileName: _ktpFileName,
+                  onPressed: () => _pickAndUploadFile('ktp')),
               const SizedBox(height: 12),
-              _buildUploadButton(title: 'Upload Foto KK', fileName: _kkFileName, onPressed: () => _pickAndUploadFile('kk')),
+              _buildUploadButton(
+                  title: 'Upload Foto KK',
+                  fileName: _kkFileName,
+                  onPressed: () => _pickAndUploadFile('kk')),
               const SizedBox(height: 24),
               CheckboxListTile(
-                title: const Text("Saya menyatakan bahwa data yang saya isikan adalah benar dan dapat dipertanggungjawabkan.", style: TextStyle(fontSize: 14)),
+                title: const Text(
+                    "Saya menyatakan bahwa data yang saya isikan adalah benar dan dapat dipertanggungjawabkan.",
+                    style: TextStyle(fontSize: 14)),
                 value: _setujuDenganSyarat,
                 onChanged: (val) => setState(() => _setujuDenganSyarat = val!),
                 controlAffinity: ListTileControlAffinity.leading,
@@ -300,8 +460,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
-                      onPressed: _isLoading || !_setujuDenganSyarat ? null : _saveProfile,
-                      style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                      onPressed: _isLoading || !_setujuDenganSyarat
+                          ? null
+                          : _saveProfile,
+                      style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16)),
                       child: const Text("Simpan dan Lanjutkan"),
                     ),
             ],
@@ -311,7 +474,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     );
   }
 
-  Widget _buildUploadButton({required String title, String? fileName, required VoidCallback onPressed}) {
+  Widget _buildUploadButton(
+      {required String title,
+      String? fileName,
+      required VoidCallback onPressed}) {
     bool isUploaded = fileName != null;
     return OutlinedButton.icon(
       onPressed: onPressed,
@@ -321,14 +487,18 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(child: Text(fileName ?? title, overflow: TextOverflow.ellipsis, style: TextStyle(color: isUploaded ? Colors.green : null))),
+            Expanded(
+                child: Text(fileName ?? title,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: isUploaded ? Colors.green : null))),
             if (isUploaded) const Icon(Icons.done, color: Colors.green)
           ],
         ),
       ),
       style: OutlinedButton.styleFrom(
         foregroundColor: isUploaded ? Colors.green : Colors.black54,
-        side: BorderSide(color: isUploaded ? Colors.green : Colors.grey.shade400),
+        side:
+            BorderSide(color: isUploaded ? Colors.green : Colors.grey.shade400),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );

@@ -86,14 +86,12 @@ class AppState extends ChangeNotifier {
   Future<void> _loadThemeMode() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? themeModeString = prefs.getString('themeMode');
-    if (themeModeString != null) {
-      _themeMode = ThemeMode.values.firstWhere(
-        (e) => e.toString() == themeModeString,
-        orElse: () => ThemeMode.system,
-      );
-      notifyListeners();
+    _themeMode = ThemeMode.values.firstWhere(
+      (e) => e.toString() == themeModeString,
+      orElse: () => ThemeMode.system,
+    );
+    notifyListeners();
     }
-  }
 
   Future<void> setThemeMode(ThemeMode mode) async {
     _themeMode = mode;

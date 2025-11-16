@@ -20,7 +20,8 @@ class _RekrutRTRWScreenState extends State<RekrutRTRWScreen> {
   String _searchQuery = '';
   final _formKey = GlobalKey<FormState>();
   DateTime _periodeMulai = DateTime.now();
-  DateTime _periodeAkhir = DateTime.now().add(const Duration(days: 365 * 5)); // 5 years
+  DateTime _periodeAkhir =
+      DateTime.now().add(const Duration(days: 365 * 5)); // 5 years
 
   Future<void> _selectDate(BuildContext context, bool isStart) async {
     final DateTime? picked = await showDatePicker(
@@ -45,7 +46,9 @@ class _RekrutRTRWScreenState extends State<RekrutRTRWScreen> {
   }
 
   Future<void> _rekrutRTRW() async {
-    if (!_formKey.currentState!.validate() || _selectedUserId == null || (!_isRt && !_isRw)) {
+    if (!_formKey.currentState!.validate() ||
+        _selectedUserId == null ||
+        (!_isRt && !_isRw)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Mohon lengkapi semua data')),
       );
@@ -56,7 +59,10 @@ class _RekrutRTRWScreenState extends State<RekrutRTRWScreen> {
 
     try {
       // Get user data
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(_selectedUserId).get();
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_selectedUserId)
+          .get();
       if (!userDoc.exists) {
         throw 'User tidak ditemukan';
       }
@@ -105,7 +111,8 @@ class _RekrutRTRWScreenState extends State<RekrutRTRWScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             // Role Selection
-            const Text('Pilih Jabatan', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Pilih Jabatan',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             CheckboxListTile(
               title: const Text('RT'),
               value: _isRt,
@@ -141,8 +148,7 @@ class _RekrutRTRWScreenState extends State<RekrutRTRWScreen> {
                   return null;
                 },
               ),
-            if (_isRt)
-              const SizedBox(height: 16),
+            if (_isRt) const SizedBox(height: 16),
 
             if (_isRw)
               TextFormField(
@@ -159,8 +165,7 @@ class _RekrutRTRWScreenState extends State<RekrutRTRWScreen> {
                   return null;
                 },
               ),
-            if (_isRw)
-              const SizedBox(height: 16),
+            if (_isRw) const SizedBox(height: 16),
             const SizedBox(height: 16),
 
             // User Selection
@@ -209,7 +214,7 @@ class _RekrutRTRWScreenState extends State<RekrutRTRWScreen> {
                     labelText: 'Pilih Warga',
                     border: OutlineInputBorder(),
                   ),
-                  initialValue: _selectedUserId,
+                  value: _selectedUserId,
                   items: userItems,
                   onChanged: (value) {
                     setState(() {
