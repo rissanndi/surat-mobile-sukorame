@@ -38,8 +38,10 @@ class NotificationService {
       if (message.notification != null && context.mounted) {
         final title = message.notification?.title ?? 'Notifikasi';
         final body = message.notification?.body ?? '';
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$title\n$body')));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('$title\n$body')));
+        }
       }
     });
 

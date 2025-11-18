@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/surat_service.dart';
+import '../screens/webview_screen.dart';
 
 class BerandaPage extends StatelessWidget {
   final SuratService _suratService = SuratService();
@@ -72,13 +73,12 @@ class BerandaPage extends StatelessWidget {
                         return const Text('Error loading statistics');
                       }
 
-                      final stats =
-                          snapshot.data ??
+                      final stats = snapshot.data ??
                           {
                             'total': 0,
                             'pending': 0,
-                            'diproses': 0,
-                            'selesai': 0,
+                            'approved': 0,
+                            'rejected': 0,
                           };
 
                       return Row(
@@ -97,12 +97,12 @@ class BerandaPage extends StatelessWidget {
                           _StatusButton(
                             label: 'Sudah Divalidasi',
                             color: Colors.blue,
-                            count: stats['selesai'] ?? 0,
+                            count: stats['approved'] ?? 0,
                           ),
                           _StatusButton(
                             label: 'Ditolak',
                             color: Colors.red,
-                            count: stats['ditolak'] ?? 0,
+                            count: stats['rejected'] ?? 0,
                           ),
                         ],
                       );
@@ -119,7 +119,7 @@ class BerandaPage extends StatelessWidget {
                     color: Colors.grey[200],
                     child: const Center(
                       child: Text('Grafik Warga Baru'),
-                    ), // Placeholder chart
+                    ),
                   ),
                   const SizedBox(height: 24),
                   const Text(
@@ -163,6 +163,80 @@ class BerandaPage extends StatelessWidget {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'INFORMASI KELURAHAN',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Profil Kelurahan Sukorame',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Lihat informasi lengkap mengenai profil, visi misi, dan data kelurahan.',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const WebViewScreen(
+                                    url:
+                                        'https://youtu.be/DsKELePdcvs?si=TF0SHV1FI1vvN9BV',
+                                    title: 'Video Kelurahan Sukorame',
+                                  ),
+                                ),
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.web,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'Lihat Profil Kelurahan',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF1B7B3A),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -177,6 +251,7 @@ class _StatusButton extends StatelessWidget {
   final String label;
   final Color color;
   final int count;
+
   const _StatusButton({
     required this.label,
     required this.color,

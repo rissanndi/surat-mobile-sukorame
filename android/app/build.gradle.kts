@@ -10,8 +10,8 @@ plugins {
 
 android {
     namespace = "com.example.surat_mobile_sukorame"
-    compileSdk = 36
-    ndkVersion = flutter.ndkVersion
+    compileSdk = 35
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -28,7 +28,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
-        targetSdk = 34
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
