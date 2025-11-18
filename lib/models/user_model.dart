@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/encryption.dart';
+import '../utils/firestore_date.dart';
 
 class UserModel {
   final String id;
@@ -41,13 +42,16 @@ class UserModel {
   });
 
   // Create encrypted map for Firestore
-  static Future<Map<String, dynamic>> encryptForFirestore(Map<String, dynamic> data) async {
+  static Future<Map<String, dynamic>> encryptForFirestore(
+      Map<String, dynamic> data) async {
     return {
       'nama': await encryptField(data['nama']),
       'nik': await encryptField(data['nik']),
       'alamat': await encryptField(data['alamat']),
       'noHp': await encryptField(data['noHp']),
-      'tempatLahir': data['tempatLahir'] != null ? await encryptField(data['tempatLahir']) : null,
+      'tempatLahir': data['tempatLahir'] != null
+          ? await encryptField(data['tempatLahir'])
+          : null,
       'tanggalLahir': data['tanggalLahir'],
       'jenisKelamin': data['jenisKelamin'],
       'agama': data['agama'],
@@ -65,7 +69,7 @@ class UserModel {
   // Create from Firestore document with decryption
   static Future<UserModel> fromFirestore(DocumentSnapshot doc) async {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-    
+
     return UserModel(
       id: doc.id,
       nama: await decryptField(data['nama']),
@@ -73,9 +77,7 @@ class UserModel {
       alamat: await decryptField(data['alamat']),
       noHp: await decryptField(data['noHp']),
       tempatLahir: await decryptField(data['tempatLahir']),
-      tanggalLahir: data['tanggalLahir'] != null 
-          ? (data['tanggalLahir'] as Timestamp).toDate() 
-          : null,
+      tanggalLahir: dateTimeFromFirestore(data['tanggalLahir']),
       jenisKelamin: data['jenisKelamin'],
       agama: data['agama'],
       pekerjaan: await decryptField(data['pekerjaan']),
