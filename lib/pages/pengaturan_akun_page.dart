@@ -144,7 +144,7 @@ class _PengaturanAkunPageState extends State<PengaturanAkunPage> {
                           // TODO: Save notification settings
                         },
                         thumbColor:
-                            MaterialStateProperty.all(const Color(0xFF1B7B3A)),
+                            WidgetStateProperty.all(const Color(0xFF1B7B3A)),
                       ),
                     ),
                     const Divider(),

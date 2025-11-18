@@ -135,8 +135,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         initialDate: _selectedDate ?? DateTime.now(),
         firstDate: DateTime(1900),
         lastDate: DateTime.now());
-    if (picked != null && picked != _selectedDate)
+    if (picked != null && picked != _selectedDate) {
       setState(() => _selectedDate = picked);
+    }
   }
 
   // Fungsi Upload File dengan Pilihan Kamera/Galeri
@@ -269,10 +270,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           content: Text("Gagal menyimpan profil: $e"),
           backgroundColor: Colors.red));
     } finally {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _isLoading = false;
         });
+      }
     }
   }
 

@@ -139,10 +139,11 @@ class _FormSuratScreenState extends State<FormSuratScreen> {
           content: Text('Gagal membuat surat: $e'),
           backgroundColor: Colors.red));
     } finally {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _isSubmitting = false;
         });
+      }
     }
   }
 
